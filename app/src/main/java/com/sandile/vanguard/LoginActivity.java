@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.View;
@@ -22,7 +23,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
         //initializing pallets
         forgotPassword = findViewById(R.id.login_tv_fogotPassword);
         forgotPassword.setOnClickListener(this);
@@ -37,7 +37,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public void onClick(View v) {//What happens when user clicks on..
         switch (v.getId()) {//Sign up button
             case R.id.login_btn_register://register
-                //startActivity(new Intent(this, RegisterUser.class));
+                startActivity(new Intent(this, RegisterActivity.class));
                 break;
             case R.id.login_btn_login://Login button
                 LoginLogic();
@@ -82,6 +82,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private void LoginLogic() {
         // login logic
+
+
+        startActivity(new Intent(this, MainActivity.class));
     }
 }
 

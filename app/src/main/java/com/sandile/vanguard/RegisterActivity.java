@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -15,11 +14,9 @@ import android.widget.Switch;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.pd.chocobar.ChocoBar;
 
 public class RegisterActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -30,11 +27,14 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
     private FirebaseAuth mAuth;
 
+    private static UserDetail userDetail = new UserDetail().userDetail();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        //initializing pallets
+        //initializing
+        mAuth = mAuth.getInstance();
+
         et_email = findViewById(R.id.register_et_email);
         et_confirmPassword = findViewById(R.id.register_et_password2);
         et_password = findViewById(R.id.register_et_password);
@@ -46,7 +46,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         switch_measurementSystem.setOnClickListener(this);
         btn_register = findViewById(R.id.register_btn_register);
         btn_register.setOnClickListener(this);
-        //initializing pallets
+        //end initialize
 
 
 
@@ -58,29 +58,28 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             case R.id.register_btn_register://register
                 if(isInputValid()){
                     pb_registering.setVisibility(View.VISIBLE);
+                    registerNewUser(userDetail, this);
+                    pb_registering.setVisibility(View.GONE);
                 }
                 //startActivity(new Intent(this, RegisterActivity.class));
                 break;
         }
     }
 
-    private void registerNewUser(String email, String password, Activity activity){
+    private void registerNewUser(UserDetail userDetail, Activity activity){
         mAuth = FirebaseAuth.getInstance();
 
-        mAuth.createUserWithEmailAndPassword(email, password)
+        mAuth.createUserWithEmailAndPassword(userDetail.getEmail(), userDetail.getPassword())
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            new ChocoBarMan().greenSnack(activity, "Welcome!");
+                        if (task.isSuccessful()) {// Sign in success, update UI with the signed-in user's information
+                            new ChocoManager().greenSnack(activity, "Welcome!");
                             FirebaseUser user = mAuth.getCurrentUser();
-
                             //updateUI(user);
                         }
-                        else {
-                            // If sign in fails, display a message to the user.
-                            new ChocoBarMan().redSnack(activity, "Authentication failed.");
+                        else {// If sign in fails, display a message to the user.
+                            new ChocoManager().redSnack(activity, "Authentication failed.");
                         }
 
                     }
@@ -142,6 +141,12 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             et_confirmPassword.requestFocus();
             return  false;
         }
+
+        userDetail.setEmail(email);
+        userDetail.setPassword(password);
+        userDetail.setFavouriteLandmark(favouriteLandmark);
+        userDetail.setPreferredLandmarkType(preferredLandmarkType);
+        userDetail.setIsMetric(isMetric);
         return true;
     }
 }

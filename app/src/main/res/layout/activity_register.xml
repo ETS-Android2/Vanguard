@@ -16,6 +16,7 @@
         android:inputType="textPassword"
         app:layout_constraintBottom_toTopOf="@+id/register_et_password2"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.606"
         app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
@@ -23,7 +24,7 @@
         android:layout_width="252dp"
         android:layout_height="51dp"
         android:ems="10"
-        android:hint="Favourite landmark location"
+        android:hint="Favourite landmark"
         android:inputType="textPersonName"
         android:visibility="visible"
         app:layout_constraintBottom_toTopOf="@+id/register_et_password"
@@ -99,9 +100,27 @@
         android:id="@+id/register_switch_MeasurementSystem"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Metric"
+        android:showText="true"
+        android:splitTrack="false"
+        android:text="Measurement system"
+        android:textOff="Imperial "
+        android:textOn="Metric"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/register_et_password2" />
+        app:layout_constraintTop_toBottomOf="@+id/register_et_password2"
+        tools:checked="true" />
+
+    <ProgressBar
+        android:id="@+id/register_pb_registering"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="218dp"
+        android:layout_height="198dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.245"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.22" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

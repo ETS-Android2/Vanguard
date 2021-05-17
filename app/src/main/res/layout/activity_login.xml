@@ -14,7 +14,8 @@
         android:layout_marginTop="36dp"
         android:clickable="true"
 
-        android:text="Forgot password"
+        android:text="I forgot my password"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         android:textColor="@color/black"
         app:layout_constraintEnd_toEndOf="@+id/login_et_password"
         app:layout_constraintHorizontal_bias="0.49"

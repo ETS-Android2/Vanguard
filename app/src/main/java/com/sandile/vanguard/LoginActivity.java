@@ -13,11 +13,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Button login, register;
     private TextView forgotPassword;
 
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +35,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         register = findViewById(R.id.login_btn_register);
         register.setOnClickListener(this);
         // initializing pallets
+        mAuth = FirebaseAuth.getInstance();
     }
 
     @Override
@@ -47,6 +52,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 break;
         }
 
+    }
+
+    @Override
+    public void onStart() {//check if users is signed in
+        super.onStart();
+        // Check if user is signed in (non-null) and update UI accordingly.
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        //once done you can do anything e.g updateUI
+        //updateUI(currentUser);
     }
 
     private void forgotPasswordLogic() {

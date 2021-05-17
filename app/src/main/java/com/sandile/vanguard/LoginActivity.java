@@ -24,7 +24,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         //initializing pallets
-        forgotPassword = findViewById(R.id.login_tv_fogotPassword);
+        forgotPassword = findViewById(R.id.login_tv_forgotPassword);
         forgotPassword.setOnClickListener(this);
         login = findViewById(R.id.login_btn_login);
         login.setOnClickListener(this);
@@ -42,7 +42,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             case R.id.login_btn_login://Login button
                 LoginLogic();
                 break;
-            case R.id.login_tv_fogotPassword://Forgot password button
+            case R.id.login_tv_forgotPassword://Forgot password button
                 forgotPasswordLogic();
                 break;
         }
@@ -55,7 +55,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private void ShowInputDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Enter email you registed with");
+        builder.setTitle("Enter email you registered with");
 
 // Set up the input
         final EditText input = new EditText(this);

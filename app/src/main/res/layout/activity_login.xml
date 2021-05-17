@@ -8,11 +8,12 @@
     tools:context=".LoginActivity">
 
     <TextView
-        android:id="@+id/login_tv_fogotPassword"
+        android:id="@+id/login_tv_forgotPassword"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="36dp"
         android:clickable="true"
+
         android:text="Forgot password"
         android:textColor="@color/black"
         app:layout_constraintEnd_toEndOf="@+id/login_et_password"
@@ -22,8 +23,8 @@
 
     <EditText
         android:id="@+id/login_et_email"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="253dp"
+        android:layout_height="45dp"
         android:layout_marginTop="240dp"
         android:ems="10"
         android:hint="Email address"
@@ -35,8 +36,8 @@
 
     <EditText
         android:id="@+id/login_et_password"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="259dp"
+        android:layout_height="44dp"
         android:layout_marginTop="55dp"
         android:ems="10"
         android:hint="Password"
@@ -70,6 +71,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="84dp"
+        android:fontFamily="cursive"
         android:clickable="false"
         android:text="Vanguard"
         android:textColor="@color/black"
@@ -88,4 +90,5 @@
         app:layout_constraintEnd_toEndOf="@+id/login_tv_name"
         app:layout_constraintStart_toStartOf="@+id/login_tv_name"
         app:layout_constraintTop_toBottomOf="@+id/login_tv_name" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

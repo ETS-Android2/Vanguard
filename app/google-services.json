@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "64442139532",
+    "project_id": "vanguard-487c0",
+    "storage_bucket": "vanguard-487c0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:64442139532:android:5ec9ee1ebdfc08daa30ca9",
+        "android_client_info": {
+          "package_name": "com.sandile.vanguard"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "64442139532-eok6gfofl8uajk53n8orl6fjn3c9ujqh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANaY7LDVroXKDyKlUKiIIg6oAUeIOCDbw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "64442139532-eok6gfofl8uajk53n8orl6fjn3c9ujqh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

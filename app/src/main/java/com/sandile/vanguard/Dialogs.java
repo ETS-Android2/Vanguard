@@ -11,6 +11,7 @@ import android.widget.Toast;
 public class Dialogs {
 
 
+    //Not setup
     protected void ShowInputDialog(Context context, Activity activity, String dialogTitle) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(dialogTitle);

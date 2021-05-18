@@ -24,4 +24,14 @@ public class SnackTwo {
                  .red()   // in built red ChocoBar
                  .show();
      }
+
+     public void blackSnack(Activity activity, String message){
+         ChocoBar.builder().setActivity(activity)
+                 .setActionText(message)
+                 .setDuration(ChocoBar.LENGTH_INDEFINITE)
+                 .setActionText(android.R.string.ok)
+                 .black()
+                 .show();
+
+     }
 }

@@ -1,52 +1,29 @@
 package com.sandile.vanguard;
 
-public class UserDetail {
-    private String id, email, password, favouriteLandmark, preferredLandmarkType;
+public class UserDetail {//Singleton used
+    private String email, favouriteLandmark, preferredLandmarkType;
     private Boolean isMetric;
 
-    private static UserDetail userDetail;
+    public static String id;
 
-    public UserDetail userDetail(){
-        if(userDetail == null){
-            userDetail = new UserDetail();
-        }
-        return userDetail;
-    }
-
-    public UserDetail(){
-    }
-
-    public UserDetail(String id, String email, String password, String favouriteLandmark, String preferredLandmarkType, Boolean isMetric) {
-        this.id = id;
+    public UserDetail(String email, String favouriteLandmark, String preferredLandmarkType, Boolean isMetric) {
         this.email = email;
-        this.password = password;
         this.favouriteLandmark = favouriteLandmark;
         this.preferredLandmarkType = preferredLandmarkType;
         this.isMetric = isMetric;
     }
 
-    public String getId() {
-        return id;
+    public UserDetail(){
+
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
+    ///////////getters and setters
     public String getEmail() {
         return email;
     }
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getFavouriteLandmark() {
@@ -69,7 +46,7 @@ public class UserDetail {
         return isMetric;
     }
 
-    public void setIsMetric(Boolean metric) {
-        isMetric = metric;
+    public void setIsMetric(Boolean isMetric) {
+        this.isMetric = isMetric;
     }
 }

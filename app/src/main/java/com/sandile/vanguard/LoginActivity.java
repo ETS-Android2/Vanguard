@@ -1,25 +1,40 @@
 package com.sandile.vanguard;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.text.InputType;
+import android.util.Log;
+import android.util.Pair;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.sandile.vanguard.Phone.Keyboard;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private Button login, register;
-    private TextView forgotPassword;
+    private Button btn_login, btn_register;
+    private TextView tv_forgotPassword;
+    private EditText et_email, et_password;
+    private ProgressBar pb_login;
 
     private FirebaseAuth mAuth;
 
@@ -27,15 +42,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        //initializing pallets
-        forgotPassword = findViewById(R.id.login_tv_forgotPassword);
-        forgotPassword.setOnClickListener(this);
-        login = findViewById(R.id.login_btn_login);
-        login.setOnClickListener(this);
-        register = findViewById(R.id.login_btn_register);
-        register.setOnClickListener(this);
-        // initializing pallets
+
+        initializePallets();
+
         mAuth = FirebaseAuth.getInstance();
+
     }
 
     @Override
@@ -48,7 +59,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 LoginLogic();
                 break;
             case R.id.login_tv_forgotPassword://Forgot password button
-                forgotPasswordLogic();
+                forgotPassword();
                 break;
         }
 
@@ -63,25 +74,80 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         //updateUI(currentUser);
     }
 
-    private void forgotPasswordLogic() {
-        ShowInputDialog();
+    private void LoginLogic() {
+        Keyboard.hideKeyboard(this);
+        pb_login.setVisibility(View.VISIBLE);
+
+        if(areInputsValid()){
+            final String tmepEmail = et_email .getText().toString().trim();
+            final String tmepPassword = et_password .getText().toString().trim();
+
+            mAuth.signInWithEmailAndPassword(tmepEmail, tmepPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    pb_login.setVisibility(View.GONE);
+                    if(task.isSuccessful()){
+                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+                        if(user.isEmailVerified()){
+                            finish();
+                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                        }
+                        else{
+                            pb_login.setVisibility(View.VISIBLE);
+                            user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    pb_login.setVisibility(View.GONE);
+                                    if(task.isSuccessful()){
+                                        new SnackTwo().redSnack(LoginActivity.this, "Verification email has been sent. Please verify your email!");
+                                    }
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    pb_login.setVisibility(View.GONE);
+                                    new SnackTwo().redSnack(LoginActivity.this, e.getMessage());
+                                }
+                            });
+                        }
+
+                    }
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    pb_login.setVisibility(View.GONE);
+                    new SnackTwo().redSnack(LoginActivity.this, e.getMessage());
+                }
+            });
+        }
+        else
+            pb_login.setVisibility(View.GONE);
+
     }
 
-    private void ShowInputDialog() {
+
+    private void forgotPassword() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Enter email you registered with");
 
-// Set up the input
+        // Set up the input
         final EditText input = new EditText(this);
-// Specify the type of input expected
+        // Specify the type of input expected
         input.setInputType(InputType.TYPE_CLASS_TEXT);
         builder.setView(input);
 
-// Set up the buttons
+        // Set up the buttons
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(LoginActivity.this, "Ok has been pressed!", Toast.LENGTH_LONG).show();
+                pb_login.setVisibility(View.VISIBLE);
+                if(isEmailValid(input.getText().toString())){
+                    sendPasswordResetEmail(input.getText().toString());
+                }
+                else
+                    pb_login.setVisibility(View.GONE);
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -92,13 +158,106 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         });
 
         builder.show();
+
     }
 
-    private void LoginLogic() {
-        // login logic
+    private void sendPasswordResetEmail(String email){//With snackbar
+        mAuth.sendPasswordResetEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    pb_login.setVisibility(View.GONE);
+                    new SnackTwo().greenSnack(LoginActivity.this, "Reset email has been successfully sent!");
+                }
+                else if(task.isComplete()){
+                    pb_login.setVisibility(View.GONE);
+                    new SnackTwo().redSnack(LoginActivity.this, "Hmmm, not sure what happened. \nCheck your emails.");
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                pb_login.setVisibility(View.GONE);
+                new SnackTwo().redSnack(LoginActivity.this, e.getMessage());
+            }
+        });
+    }
+
+    private boolean isEmailValid(String email){
+        email.trim();
+
+        if(email.isEmpty()){
+            new SnackTwo().redSnack(LoginActivity.this, "Field empty\nEnter you email address");
+            return false;
+        }
+        else if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
+            new SnackTwo().redSnack(LoginActivity.this, "Entered email is not valid");
+            return false;
+        }
+        return true;
+    }
+
+    private Boolean areInputsValid(){//!!! UserDetail.getPreferredLandmarkType is used as holder
+        final String email = et_email.getText().toString().trim();
+        final String password = et_password.getText().toString().trim();
+
+        if(email.isEmpty()){
+            et_email.setError("Enter your email!");
+            et_email.requestFocus();
+            return false;
+        }
+
+        if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
+            et_email.setError("Your email address is not valid!");
+            et_email.requestFocus();
+            return false;
+        }
+
+        if(password.isEmpty()){
+            et_password.setError("Enter your password!");
+            et_password.requestFocus();
+            return false;
+        }
+
+        if(password.length() < 6){
+            et_password.setError("Min password length is 6!");
+            et_password.requestFocus();
+            return false;
+        }
+
+        return true;
+    }
 
 
-        startActivity(new Intent(this, MainActivity.class));
+
+
+
+
+
+
+
+
+
+
+
+
+    private void initializePallets(){
+        tv_forgotPassword = findViewById(R.id.login_tv_forgotPassword);
+        tv_forgotPassword.setOnClickListener(this);
+
+        btn_login = findViewById(R.id.login_btn_login);
+        btn_login.setOnClickListener(this);
+
+        btn_register = findViewById(R.id.login_btn_register);
+        btn_register.setOnClickListener(this);
+
+        et_email = findViewById(R.id.login_et_email);
+        et_email.setOnClickListener(this);
+
+        et_password= findViewById(R.id.login_et_password);
+        et_password.setOnClickListener(this);
+
+        pb_login = findViewById(R.id.login_pb_login);
     }
 }
 

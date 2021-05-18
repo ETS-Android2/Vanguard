@@ -3,7 +3,6 @@ package com.sandile.vanguard;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,7 +19,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class RegisterActivity extends AppCompatActivity implements View.OnClickListener {
     private Button btn_register;
@@ -31,6 +30,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     private FirebaseAuth mAuth;
 
     private static UserDetail userDetail = new UserDetail().userDetail();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,18 +51,19 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         btn_register.setOnClickListener(this);
         //end initialize
 
+
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {//Sign up button
             case R.id.register_btn_register://register
-                registerLogic();
+                registerNewUser();
                 break;
         }
     }
 
-    private void registerLogic() {
+    private void registerNewUser() {
         pb_registering.setVisibility(View.VISIBLE);
         if(isInputValid()){
             mAuth.createUserWithEmailAndPassword(userDetail.getEmail(), userDetail.getPassword())
@@ -71,20 +72,39 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             pb_registering.setVisibility(View.GONE);
                             if(task.isSuccessful()){
-                                pb_registering.setVisibility(View.GONE);
-                                startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+                                userDetail.setEmail(FirebaseAuth.getInstance().getCurrentUser().getUid());
                             }
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
                     pb_registering.setVisibility(View.GONE);
-                    new ChocoManager().redSnack(RegisterActivity.this, e.getMessage());
+                    new SnackTwo().redSnack(RegisterActivity.this, e.getMessage());
                 }
             });
         }
         else
             pb_registering.setVisibility(View.GONE);
+    }
+
+    private void saveUserToFirebase(UserDetail userDetail){
+        FirebaseDatabase.getInstance().getReference("Users")
+                .child(userDetail.getId())
+                .setValue(userDetail).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                pb_registering.setVisibility(View.GONE);
+                if(task.isSuccessful()){
+                    new SnackTwo().greenSnack(RegisterActivity.this, "Account created successfully!");
+                    startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                new SnackTwo().redSnack(RegisterActivity.this, e.getMessage());
+            }
+        });
     }
 
 

@@ -4,22 +4,25 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class RegisterActivity extends AppCompatActivity implements View.OnClickListener {
-
     private Button btn_register;
     private Switch switch_measurementSystem;
     private EditText et_email, et_confirmPassword, et_password, et_favouriteLandmark, et_preferredLandmarkType;
@@ -33,7 +36,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
         //initializing
-        mAuth = mAuth.getInstance();
+        mAuth = FirebaseAuth.getInstance();
 
         et_email = findViewById(R.id.register_et_email);
         et_confirmPassword = findViewById(R.id.register_et_password2);
@@ -48,47 +51,42 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         btn_register.setOnClickListener(this);
         //end initialize
 
-
-
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {//Sign up button
             case R.id.register_btn_register://register
-                if(isInputValid()){
-                    pb_registering.setVisibility(View.VISIBLE);
-                    registerNewUser(userDetail, this);
-                    pb_registering.setVisibility(View.GONE);
-                }
-                //startActivity(new Intent(this, RegisterActivity.class));
+                registerLogic();
                 break;
         }
     }
 
-    private void registerNewUser(UserDetail userDetail, Activity activity){
-        mAuth = FirebaseAuth.getInstance();
-
-        mAuth.createUserWithEmailAndPassword(userDetail.getEmail(), userDetail.getPassword())
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {// Sign in success, update UI with the signed-in user's information
-                            new ChocoManager().greenSnack(activity, "Welcome!");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            //updateUI(user);
+    private void registerLogic() {
+        pb_registering.setVisibility(View.VISIBLE);
+        if(isInputValid()){
+            mAuth.createUserWithEmailAndPassword(userDetail.getEmail(), userDetail.getPassword())
+                    .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            pb_registering.setVisibility(View.GONE);
+                            if(task.isSuccessful()){
+                                pb_registering.setVisibility(View.GONE);
+                                startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+                            }
                         }
-                        else {// If sign in fails, display a message to the user.
-                            new ChocoManager().redSnack(activity, "Authentication failed.");
-                        }
-
-                    }
-                });
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    pb_registering.setVisibility(View.GONE);
+                    new ChocoManager().redSnack(RegisterActivity.this, e.getMessage());
+                }
+            });
+        }
+        else
+            pb_registering.setVisibility(View.GONE);
     }
 
-    private void createProfileInFirebase(){
-
-    }
 
     private Boolean isInputValid(){
         final String email = et_email.getText().toString().trim();
@@ -106,6 +104,16 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             et_email.requestFocus();
             return false;
         }
+        if(preferredLandmarkType.isEmpty()){
+            et_preferredLandmarkType.setError("Enter your preferred landmark type!");
+            et_preferredLandmarkType.requestFocus();
+            return false;
+        }
+        if(favouriteLandmark.isEmpty()){
+            et_favouriteLandmark.setError("Enter your favourite landmark!");
+            et_favouriteLandmark.requestFocus();
+            return false;
+        }
         if(password.isEmpty()){
             et_password.setError("Enter your password!");
             et_password.requestFocus();
@@ -118,18 +126,13 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             return false;
         }
 
-        if(favouriteLandmark.isEmpty()){
-            et_favouriteLandmark.setError("Enter your favourite landmark!");
-            et_favouriteLandmark.requestFocus();
+        //is empty end, logic validation next
+        if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
+            et_email.setError("Your email address is not valid!");
+            et_email.requestFocus();
             return false;
         }
 
-        if(preferredLandmarkType.isEmpty()){
-            et_preferredLandmarkType.setError("Enter your preferred landmark type!");
-            et_preferredLandmarkType.requestFocus();
-            return false;
-        }
-        //is empty end, logic validation next
         if(password.length() < 8){
             et_password.setError("Min password length is 8!");
             et_password.requestFocus();

@@ -1,4 +1,4 @@
-package com.sandile.vanguard;
+package com.sandile.vanguard.Activites;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,7 +13,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Switch;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -22,6 +21,9 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 import com.sandile.vanguard.Phone.Keyboard;
+import com.sandile.vanguard.R;
+import com.sandile.vanguard.SnackTwo;
+import com.sandile.vanguard.UserDetail;
 
 public class RegisterActivity extends AppCompatActivity implements View.OnClickListener {
     private Button btn_register;
@@ -54,12 +56,14 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         pb_registering.setVisibility(View.VISIBLE);
         Pair<Boolean, UserDetail> pair = isInputValid();
         if(pair.first){
-            String tempPassword = et_password.toString().trim();
+            String tempPassword = et_password.getText().toString().trim();
 
             mAuth.createUserWithEmailAndPassword(pair.second.getEmail(), tempPassword)
                     .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
+                            Log.d("Testing password in onComplete:", tempPassword);
+
                             if(task.isSuccessful()){
                                 UserDetail.id = FirebaseAuth.getInstance().getCurrentUser().getUid();
                                 saveUserToFirebase(pair.second);

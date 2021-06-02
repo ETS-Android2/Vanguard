@@ -1,8 +1,11 @@
-package com.sandile.vanguard;
+package com.sandile.vanguard.Activites;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import com.sandile.vanguard.R;
+import com.sandile.vanguard.SnackTwo;
 
 public class MainActivity extends AppCompatActivity {
 

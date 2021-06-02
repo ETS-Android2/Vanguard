@@ -1,33 +1,29 @@
-package com.sandile.vanguard;
+package com.sandile.vanguard.Activites;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.text.InputType;
-import android.util.Log;
-import android.util.Pair;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.sandile.vanguard.Phone.Keyboard;
+import com.sandile.vanguard.R;
+import com.sandile.vanguard.SnackTwo;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -79,10 +75,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         pb_login.setVisibility(View.VISIBLE);
 
         if(areInputsValid()){
-            final String tmepEmail = et_email .getText().toString().trim();
-            final String tmepPassword = et_password .getText().toString().trim();
+            final String tempEmail = et_email.getText().toString().trim();
+            final String tempPassword = et_password.getText().toString().trim();
 
-            mAuth.signInWithEmailAndPassword(tmepEmail, tmepPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            mAuth.signInWithEmailAndPassword(tempEmail, tempPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     pb_login.setVisibility(View.GONE);
@@ -100,7 +96,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                 public void onComplete(@NonNull Task<Void> task) {
                                     pb_login.setVisibility(View.GONE);
                                     if(task.isSuccessful()){
-                                        new SnackTwo().redSnack(LoginActivity.this, "Verification email has been sent. Please verify your email!");
+                                        new SnackTwo().redSnack(LoginActivity.this, "Verification email will arrive within 1 minute. Please verify your email!");
                                     }
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
@@ -167,7 +163,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
                     pb_login.setVisibility(View.GONE);
-                    new SnackTwo().greenSnack(LoginActivity.this, "Reset email has been successfully sent!");
+                    new SnackTwo().greenSnack(LoginActivity.this, "Reset email will arrive within 1 minute.");
                 }
                 else if(task.isComplete()){
                     pb_login.setVisibility(View.GONE);

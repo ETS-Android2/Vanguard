@@ -1,4 +1,4 @@
-package com.sandile.vanguard.Activites;
+package com.sandile.vanguard.Views.Activites;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;

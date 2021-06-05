@@ -65,7 +65,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                             Log.d("Testing password in onComplete:", tempPassword);
 
                             if(task.isSuccessful()){
-                                UserDetail.id = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                                UserDetail.currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
                                 saveUserToFirebase(pair.second);
                             }
                         }
@@ -83,7 +83,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
     private void saveUserToFirebase(UserDetail userDetail){//   2
         FirebaseDatabase.getInstance().getReference("users")
-                .child(userDetail.id)
+                .child(userDetail.currentUserId)
                 .setValue(userDetail).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {

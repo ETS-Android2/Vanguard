@@ -3,31 +3,49 @@ package com.sandile.vanguard.Views.Fragmants;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import com.sandile.vanguard.R;
+
+import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link Profile#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class Profile extends Fragment {
+public class Profile extends Fragment implements View.OnClickListener{
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private ListView lv_userDetails;
+    ArrayList<String> userDetailsList = new ArrayList<>();
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
+    private static final String ARG_PARAM1 = "param1";// TODO: Rename parameter arguments, choose names that match
+    private static final String ARG_PARAM2 = "param2";// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+
+    private String mParam1;// TODO: Rename and change types of parameters
     private String mParam2;
 
     public Profile() {
         // Required empty public constructor
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_profile, container, false);
+
+        lv_userDetails = view.findViewById(R.id.profile_lv_userDetails);
+
+        listSetup(lv_userDetails);
+
+        return view;
     }
 
     /**
@@ -55,12 +73,31 @@ public class Profile extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+
+
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_profile, container, false);
+    public void onClick(View v) {//What happens when user clicks on..
+        switch (v.getId()) {//Sign up button
+            case R.id.profile_lv_userDetails://register
+                //Do something
+                break;
+        }
+
+    }
+
+
+
+    private void listSetup(ListView inListView){
+        userDetailsList.add("name:");
+        userDetailsList.add("surname:");
+        userDetailsList.add("age:");
+        userDetailsList.add("something else:");
+
+        ArrayAdapter arrayAdapter = new ArrayAdapter(this.getContext(), android.R.layout.simple_list_item_1, userDetailsList);
+
+        inListView.setAdapter(arrayAdapter);
     }
 }

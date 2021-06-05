@@ -4,7 +4,7 @@ public class UserDetail {//Singleton used
     private String email, favouriteLandmark, preferredLandmarkType;
     private Boolean isMetric;
 
-    public static String id;
+    public static String currentUserId;
 
     public UserDetail(String email, String favouriteLandmark, String preferredLandmarkType, Boolean isMetric) {
         this.email = email;

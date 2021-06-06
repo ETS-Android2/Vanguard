@@ -130,10 +130,16 @@ public class Profile extends Fragment implements View.OnClickListener{
         userDetailsList.add("FavouriteLandmark: " + inUserDetail.getFavouriteLandmark());
         userDetailsList.add("IsMetric: " + inUserDetail.getIsMetric().toString());
 
-        ArrayAdapter arrayAdapter = new ArrayAdapter(this.getContext(), android.R.layout.simple_list_item_1, userDetailsList);
-
-        inListView.setAdapter(arrayAdapter);
-
+        if(!userDetailsList.isEmpty()){
+            ArrayAdapter arrayAdapter = new ArrayAdapter(this.getContext(), android.R.layout.simple_list_item_1, userDetailsList);
+            inListView.setAdapter(arrayAdapter);
+        }else{
+            new SnackTwo().redSnack(this.getActivity(), "Could not get details.");
+            userDetailsList.clear();
+            userDetailsList.add("Could not get details!");
+            ArrayAdapter arrayAdapter2 = new ArrayAdapter(this.getContext(), android.R.layout.simple_list_item_1, userDetailsList);
+            inListView.setAdapter(arrayAdapter2);
+        }
 
     }
 

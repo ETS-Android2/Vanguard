@@ -36,6 +36,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 import com.sandile.vanguard.R;
 import com.sandile.vanguard.SnackTwo;
 import com.sandile.vanguard.Views.Activites.MainActivity;
@@ -81,15 +82,14 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
         View view = inflater.inflate(R.layout.fragment_maps, container, false);
         mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
 
-        mapFragment.getMapAsync(this);
 
-        mapView = mapFragment.getView();
 
         if(getLocationPermission()){
             if (mapFragment != null) {
                 mapFragment.getMapAsync(this);
                 mapView = mapFragment.getView();
 
+//                drawPolylines();
             }
             else{
                 new SnackTwo().redSnack(this.getActivity(), "Maps is not ready :-(");
@@ -101,6 +101,18 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
         return view;
     }
 
+//    private void drawPolylines() {
+//;
+//
+//        // Checks, whether start and end locations are captured
+//        // Getting URL to the Google Directions API
+//        String url = getDirectionsUrl(origin, dest);
+//        Log.d("url", url + "");
+//        DownloadTask downloadTask = new DownloadTask();
+//        // Start downloading json data from Google Directions API
+//        downloadTask.execute(url);
+//    }
+
     private Boolean getLocationPermission() {
         if (ContextCompat.checkSelfPermission(this.getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             return true;
@@ -110,5 +122,13 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
         return false;
     }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        //Initialize
 
+        pb_loading = getView().findViewById(R.id.maps_pb_loading);
+        pb_loading.setVisibility(View.VISIBLE);
+
+    }
 }

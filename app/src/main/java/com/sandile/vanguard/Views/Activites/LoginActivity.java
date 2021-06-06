@@ -24,6 +24,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.sandile.vanguard.Phone.Keyboard;
 import com.sandile.vanguard.R;
 import com.sandile.vanguard.SnackTwo;
+import com.sandile.vanguard.UserDetail;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -86,6 +87,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
                         if(user.isEmailVerified()){
+                            UserDetail.currentUserId = user.getUid();
                             finish();
                             startActivity(new Intent(LoginActivity.this, MainActivity.class));
                         }

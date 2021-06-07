@@ -18,6 +18,7 @@ import android.widget.TextView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -29,8 +30,8 @@ import com.sandile.vanguard.UserDetail;
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Button btn_login, btn_register;
+    private TextInputLayout et_email, et_password;
     private TextView tv_forgotPassword;
-    private EditText et_email, et_password;
     private ProgressBar pb_login;
 
     private FirebaseAuth mAuth;
@@ -76,8 +77,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         pb_login.setVisibility(View.VISIBLE);
 
         if(areInputsValid()){
-            final String tempEmail = et_email.getText().toString().trim();
-            final String tempPassword = et_password.getText().toString().trim();
+            final String tempEmail = et_email.getEditText().getText().toString().trim();
+            final String tempPassword = et_password.getEditText().getText().toString().trim();
 
             mAuth.signInWithEmailAndPassword(tempEmail, tempPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
@@ -196,8 +197,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private Boolean areInputsValid(){//!!! UserDetail.getPreferredLandmarkType is used as holder
-        final String email = et_email.getText().toString().trim();
-        final String password = et_password.getText().toString().trim();
+        final String email = et_email.getEditText().getText().toString().trim();
+        final String password = et_password.getEditText().getText().toString().trim();
 
         if(email.isEmpty()){
             et_email.setError("Enter your email!");
@@ -206,6 +207,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
 
         if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
+            new SnackTwo().greenSnack(this, email);
             et_email.setError("Your email address is not valid!");
             et_email.requestFocus();
             return false;

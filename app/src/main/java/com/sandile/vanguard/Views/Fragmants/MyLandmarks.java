@@ -2,13 +2,16 @@ package com.sandile.vanguard.Views.Fragmants;
 
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.sandile.vanguard.R;
+import com.sandile.vanguard.SnackTwo;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -16,6 +19,7 @@ import com.sandile.vanguard.R;
  * create an instance of this fragment.
  */
 public class MyLandmarks extends Fragment {
+
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -55,12 +59,27 @@ public class MyLandmarks extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+         // Inflate the layout for this fragment
+
         return inflater.inflate(R.layout.fragment_my_landmarks, container, false);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        FloatingActionButton fab_add = (FloatingActionButton) getActivity().findViewById(R.id.landmarks_fab_add);
+        fab_add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new SnackTwo().greenSnack(getActivity(), "You are ready to add!");
+            }
+        });
     }
 }

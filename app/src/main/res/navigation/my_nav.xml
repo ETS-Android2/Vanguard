@@ -23,7 +23,7 @@
         tools:layout="@layout/fragment_my_landmarks" />
     <fragment
         android:id="@+id/fragment_route"
-        android:name="com.sandile.vanguard.Fragment_route"
+        android:name="com.sandile.vanguard.Views.Fragmants.Fragment_route"
         android:label="fragment_route"
         tools:layout="@layout/fragment_route" />
 </navigation>

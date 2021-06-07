@@ -52,7 +52,7 @@ public class Profile extends Fragment implements View.OnClickListener{
     private LinearProgressIndicator pb_loadingProfile;
 
     //Objects
-    private static UserDetail userDetailGlobal;
+    public static UserDetail userDetailGlobal;
 
     public Profile() {
         // Required empty public constructor

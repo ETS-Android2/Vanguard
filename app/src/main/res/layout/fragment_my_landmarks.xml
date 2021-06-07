@@ -3,20 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="@color/blue_500"
     android:layout_height="match_parent"
+    android:background="@color/blue_500"
     tools:context=".Views.Fragmants.MyLandmarks">
-
-    <ListView
-        android:id="@+id/landmarks_lv_landmarks"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="@color/white"
-        android:textColor="@color/black"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     <ImageView
         android:id="@+id/imageView3"
@@ -32,11 +21,34 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="My landmarks"
-        android:textColor="@color/black"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:textColor="@color/black"
         app:layout_constraintEnd_toEndOf="@+id/imageView3"
         app:layout_constraintStart_toStartOf="@+id/imageView3"
         app:layout_constraintTop_toBottomOf="@+id/imageView3" />
+
+
+    <ListView
+        android:id="@+id/landmarks_lv_landmarks"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="#3A3A3A"
+        android:textColor="@color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/landmarks_pb_loadingLandmarks">
+
+    </ListView>
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/landmarks_pb_loadingLandmarks"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        app:indicatorColor="@color/yellow_500"
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        app:trackThickness="8dp" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/landmarks_fab_add"
@@ -44,11 +56,14 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
         android:clickable="true"
-        app:backgroundTint="@color/white"
         android:src="@drawable/ic_addtolist"
+        app:backgroundTint="@color/white"
         app:layout_constraintBottom_toBottomOf="@+id/landmarks_lv_landmarks"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:rippleColor="@color/purple_700" />
+        app:rippleColor="@color/yellow_500" />
+
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

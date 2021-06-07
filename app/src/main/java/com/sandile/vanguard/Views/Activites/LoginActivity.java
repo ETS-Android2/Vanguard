@@ -143,6 +143,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             public void onClick(DialogInterface dialog, int which) {
                 pb_login.setVisibility(View.VISIBLE);
                 if(isEmailValid(input.getText().toString())){
+
                     sendPasswordResetEmail(input.getText().toString());
                 }
                 else

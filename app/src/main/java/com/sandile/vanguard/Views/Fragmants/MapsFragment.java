@@ -2,6 +2,7 @@ package com.sandile.vanguard.Views.Fragmants;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -38,6 +39,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -54,10 +56,12 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.collection.LLRBNode;
 import com.sandile.vanguard.DirectionsJSONParser;
+import com.sandile.vanguard.PlaceDetails;
 import com.sandile.vanguard.R;
 import com.sandile.vanguard.SnackTwo;
 import com.sandile.vanguard.Views.Activites.MainActivity;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -87,8 +91,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
     private SupportMapFragment mapFragment;
     GoogleApiClient mGoogleApiClient;
 
-    LatLng origin = new LatLng(30.739834, 76.782702);
-    LatLng dest = new LatLng(30.705493, 76.801256);
+    LatLng origin = new LatLng(-29.785511420324436, 31.039100258138003);
+    LatLng dest = new LatLng(-29.78178672728432, 31.045313196592897);
     PlacesClient placesClient;
     private static int AUTOCOMPLETE_REQUEST_CODE = 1;
     Button btn_find;
@@ -99,6 +103,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
         mMap = googleMap;
 
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
 
 
         //Initialize Google Play Services
@@ -116,6 +121,21 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                             == PackageManager.PERMISSION_GRANTED) {
                         buildGoogleApiClient();
                         mMap.setMyLocationEnabled(true);
+                        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                            @Override
+                            public void onMapClick(@NonNull @NotNull LatLng latLng) {
+                                googleMap.addMarker(new MarkerOptions()
+                                        .position(new LatLng(latLng.latitude, latLng.longitude))
+                                        .title("Marker"));
+                            }
+                        });
+                        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                            @Override
+                            public boolean onMarkerClick(@NonNull @NotNull Marker marker) {
+
+                                return false;
+                            }
+                        });
                     }
                 } else {
                     buildGoogleApiClient();
@@ -194,8 +214,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
         btn_search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME);//, Place.Field.ADDRESS, Place.Field.LAT_LNG
-                // Start the autocomplete intent.
+                List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS, Place.Field.LAT_LNG);
 
                 Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields).build(getContext());
                 startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
@@ -208,19 +227,34 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
         if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 Place place = Autocomplete.getPlaceFromIntent(data);
-                btn_search.setText(place.getName());
+                LatLng latLngTemp = new LatLng(place.getLatLng().latitude, place.getLatLng().longitude);
+                mMap.addMarker(new MarkerOptions().position(latLngTemp).title(place.getName()));
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLngTemp, 6));
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
                 Status status = Autocomplete.getStatusFromIntent(data);
                 new SnackTwo().redSnack(getActivity(), status.getStatusMessage());
             } else if (resultCode == RESULT_CANCELED) {
-                new SnackTwo().greenSnack(getActivity(), "Don't by shy search!");
+                new SnackTwo().orangeSnack(getActivity(), "Click on a place to add it!");
             }
             return;
         }
-        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void showLandmarkDetailsDialog(PlaceDetails inPlaceDetails){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setCancelable(true);
+        builder.setTitle(inPlaceDetails.getName()+" details");
+        builder.setMessage("Address: " + inPlaceDetails.getAddress()+
+                "\n\nId: " + inPlaceDetails.getId());
+        builder.setNegativeButton("Ok", (dialog, which) -> dialog.cancel());
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     private Boolean getLocationPermission() {

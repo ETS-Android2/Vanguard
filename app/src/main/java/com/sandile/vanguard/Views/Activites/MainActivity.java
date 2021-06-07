@@ -60,28 +60,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
 
-    private void askLastLocation() {
-        if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)){
-            new SnackTwo().blackSnack(this, "Ask for permission");
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
-        }
-        else{
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
-        }
-
-    }
-
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-//        if(requestCode == LOCATION_REQUEST_CODE){
-//            if(grantResults.length >0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-//                //Nice, permissions are granted
-//
-//            }else{
-//                new SnackTwo().redSnack(this, "Permission is not granted!");
-//            }
-//        }
-//    }
 
 
 }

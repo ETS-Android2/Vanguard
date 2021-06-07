@@ -1,6 +1,7 @@
 package com.sandile.vanguard;
 
 import android.app.Activity;
+import android.graphics.drawable.Drawable;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.pd.chocobar.ChocoBar;
@@ -25,12 +26,12 @@ public class SnackTwo {
                  .show();
      }
 
-     public void blackSnack(Activity activity, String message){
+     public void orangeSnack(Activity activity, String message){
          ChocoBar.builder().setActivity(activity)
-                 .setActionText(message)
-                 .setDuration(ChocoBar.LENGTH_INDEFINITE)
+                 .setText(message)
+                 .setDuration(ChocoBar.LENGTH_LONG)
                  .setActionText(android.R.string.ok)
-                 .black()
+                 .orange() // in built green ChocoBar
                  .show();
 
      }

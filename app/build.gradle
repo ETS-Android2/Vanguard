@@ -45,6 +45,10 @@ dependencies {
 
     implementation 'com.github.Pradyuman7:ChocoBar:V1.5'
 
+    //Google maps
+    implementation 'com.google.maps:google-maps-services:0.18.1'
+    implementation 'org.slf4j:slf4j-simple:1.7.25'
+
     implementation 'com.google.android.gms:play-services-location:18.0.0'
 
     implementation 'com.google.android.libraries.places:places:2.4.0'

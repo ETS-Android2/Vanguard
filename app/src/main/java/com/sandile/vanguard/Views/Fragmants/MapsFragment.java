@@ -116,6 +116,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                 mMap.getUiSettings().setZoomGesturesEnabled(true);
                 mMap.getUiSettings().setCompassEnabled(true);
                 mMap.getUiSettings().setMapToolbarEnabled(true);
+
                 //Initialize Google Play Services
                 if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     if (ContextCompat.checkSelfPermission(getContext(),

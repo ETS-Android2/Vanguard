@@ -26,12 +26,13 @@ import com.sandile.vanguard.Phone.Keyboard;
 import com.sandile.vanguard.R;
 import com.sandile.vanguard.SnackTwo;
 import com.sandile.vanguard.UserDetail;
+import com.sandile.vanguard.Views.Fragmants.TempMapsFragment;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Button btn_login, btn_register;
     private TextInputLayout et_email, et_password;
-    private TextView tv_forgotPassword;
+    private TextView tv_forgotPassword, tv_vanguard;
     private ProgressBar pb_login;
 
     private FirebaseAuth mAuth;
@@ -58,6 +59,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 break;
             case R.id.login_tv_forgotPassword://Forgot password button
                 forgotPassword();
+                break;
+            case R.id.login_tv_vanguard://Open map
+                getSupportFragmentManager().beginTransaction()
+                        .add(android.R.id.content, new TempMapsFragment()).commit();
                 break;
         }
 
@@ -243,6 +248,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
 
     private void initializePallets(){
+        //Temp
+        tv_vanguard = findViewById(R.id.login_tv_vanguard);
+        tv_vanguard.setOnClickListener(this);
+
         tv_forgotPassword = findViewById(R.id.login_tv_forgotPassword);
         tv_forgotPassword.setOnClickListener(this);
 

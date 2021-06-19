@@ -126,7 +126,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/login_tv_name"
+        android:id="@+id/login_tv_vanguard"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="56dp"
@@ -147,9 +147,9 @@
         android:layout_height="wrap_content"
         android:text="Show me the way"
         android:textColor="@color/black"
-        app:layout_constraintEnd_toEndOf="@+id/login_tv_name"
-        app:layout_constraintStart_toStartOf="@+id/login_tv_name"
-        app:layout_constraintTop_toBottomOf="@+id/login_tv_name" />
+        app:layout_constraintEnd_toEndOf="@+id/login_tv_vanguard"
+        app:layout_constraintStart_toStartOf="@+id/login_tv_vanguard"
+        app:layout_constraintTop_toBottomOf="@+id/login_tv_vanguard" />
 
     <ProgressBar
         android:id="@+id/login_pb_login"
@@ -160,6 +160,6 @@
         app:layout_constraintBottom_toTopOf="@+id/login_tv_forgotPassword"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/login_tv_name" />
+        app:layout_constraintTop_toBottomOf="@+id/login_tv_vanguard" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

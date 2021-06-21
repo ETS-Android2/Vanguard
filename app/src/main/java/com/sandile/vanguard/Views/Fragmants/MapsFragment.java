@@ -56,7 +56,6 @@ import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.collection.LLRBNode;
-import com.sandile.vanguard.DirectionsJSONParser;
 import com.sandile.vanguard.PlaceDetails;
 import com.sandile.vanguard.R;
 import com.sandile.vanguard.SnackTwo;

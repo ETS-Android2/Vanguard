@@ -1,8 +1,11 @@
 package com.sandile.vanguard;
 
+import java.net.URL;
+
 public class PlaceDetails {
     private String address, id, name;
     private double latitude, longitude;
+    private URL icon;
 
     public PlaceDetails(){
     }
@@ -13,6 +16,14 @@ public class PlaceDetails {
         this.name = name;
         this.latitude = latitude;
         this.longitude = longitude;
+    }
+
+    public URL getIcon() {
+        return icon;
+    }
+
+    public void setAIcon(URL icon) {
+        this.icon = icon;
     }
 
     public String getAddress() {

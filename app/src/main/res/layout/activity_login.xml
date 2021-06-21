@@ -30,9 +30,10 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
-            android:inputType="textEmailAddress"
             android:layout_height="wrap_content"
-            android:maxLength="30" />
+            android:inputType="textEmailAddress"
+            android:maxLength="30"
+            tools:text="usertwo@maildrop.cc" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -60,6 +61,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textPassword"
+            tools:text="wersdfzxc"
             android:maxLength="30"
             />
 

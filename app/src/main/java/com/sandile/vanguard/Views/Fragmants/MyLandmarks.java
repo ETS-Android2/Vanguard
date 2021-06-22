@@ -98,7 +98,7 @@ public class MyLandmarks extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        Places.initialize(this.getContext(), "AIzaSyANaY7LDVroXKDyKlUKiIIg6oAUeIOCDbw");
+        Places.initialize(this.getContext(), getString(R.string.google_api_key));
 
         lv_landmarks = getActivity().findViewById(R.id.landmarks_lv_landmarks);
         lv_landmarks.setOnItemClickListener(new AdapterView.OnItemClickListener() {

@@ -117,34 +117,34 @@ public class TempMapsFragment extends Fragment implements OnMapReadyCallback {
             }
         });
 
-        PlacesSearchResult[] placesSearchResults = new MapHelper().nearbyPlaces(geoApiContext, new com.google.maps.model.LatLng(currentUserLocation.latitude, currentUserLocation.longitude), PlaceType.BAR).results;
-
-        if(placesSearchResults != null){
-            Log.e("response1Tag", placesSearchResults[0].toString());
-            Log.e("response2Tag", placesSearchResults[1].toString());
-
-            double lat1 = placesSearchResults[0].geometry.location.lat;
-            double lng1 = placesSearchResults[0].geometry.location.lng;
-
-            double lat2 = placesSearchResults[1].geometry.location.lat;
-            double lng2 = placesSearchResults[1].geometry.location.lng;
-
-            double lat3 = placesSearchResults[3].geometry.location.lat;
-            double lng3 = placesSearchResults[3].geometry.location.lng;
-
-            double lat4 = placesSearchResults[4].geometry.location.lat;
-            double lng4 = placesSearchResults[4].geometry.location.lng;
-
-            mMap.addMarker(new MarkerOptions().position(new LatLng(lat1, lng1))).setTitle("marker 1");
-            mMap.addMarker(new MarkerOptions().position(new LatLng(lat2, lng2))).setTitle("marker 2");
-            mMap.addMarker(new MarkerOptions().position(new LatLng(lat3, lng3))).setTitle("marker 3");
-            mMap.addMarker(new MarkerOptions().position(new LatLng(lat4, lng4))).setTitle("marker 4");
-
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lat1, lng1)));
-        }
-        else{
-            new SnackTwo().redSnack(getActivity(),"Could not find any places");
-        }
+//        PlacesSearchResult[] placesSearchResults = new MapHelper().nearbyPlaces(geoApiContext, new com.google.maps.model.LatLng(currentUserLocation.latitude, currentUserLocation.longitude), PlaceType.BAR).results;
+//
+//        if(placesSearchResults != null){
+//            Log.e("response1Tag", placesSearchResults[0].toString());
+//            Log.e("response2Tag", placesSearchResults[1].toString());
+//
+//            double lat1 = placesSearchResults[0].geometry.location.lat;
+//            double lng1 = placesSearchResults[0].geometry.location.lng;
+//
+//            double lat2 = placesSearchResults[1].geometry.location.lat;
+//            double lng2 = placesSearchResults[1].geometry.location.lng;
+//
+//            double lat3 = placesSearchResults[3].geometry.location.lat;
+//            double lng3 = placesSearchResults[3].geometry.location.lng;
+//
+//            double lat4 = placesSearchResults[4].geometry.location.lat;
+//            double lng4 = placesSearchResults[4].geometry.location.lng;
+//
+//            mMap.addMarker(new MarkerOptions().position(new LatLng(lat1, lng1))).setTitle("marker 1");
+//            mMap.addMarker(new MarkerOptions().position(new LatLng(lat2, lng2))).setTitle("marker 2");
+//            mMap.addMarker(new MarkerOptions().position(new LatLng(lat3, lng3))).setTitle("marker 3");
+//            mMap.addMarker(new MarkerOptions().position(new LatLng(lat4, lng4))).setTitle("marker 4");
+//
+//            mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lat1, lng1)));
+//        }
+//        else{
+//            new SnackTwo().redSnack(getActivity(),"Could not find any places");
+//        }
 
     }
 

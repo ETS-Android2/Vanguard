@@ -24,12 +24,15 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.maps.model.PlaceType;
 import com.sandile.vanguard.PlaceDetails;
 import com.sandile.vanguard.R;
 import com.sandile.vanguard.SnackTwo;
 import com.sandile.vanguard.UserDetail;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -69,7 +72,7 @@ public class Profile extends Fragment implements View.OnClickListener{
                 new SnackTwo().orangeSnack(getActivity(), "You cannot change your email");
             }
             if(i == 1){
-                changeUserDetailDialog("preferredLandmarkType");
+                placeTypeListDialog();
             }
             if(i == 2){
                 changeUserDetailDialog("favouriteLandmark");
@@ -263,6 +266,34 @@ public class Profile extends Fragment implements View.OnClickListener{
         });
     }
 
+    private void  placeTypeListDialog(){
+        ListView placeTypeListView = new ListView(getContext());
 
+        List<String> placeTypeData = new ArrayList<String>();
+
+        for(int i = 0; i < Arrays.stream(PlaceType.values()).count(); i++){
+            placeTypeData.add(PlaceType.values()[i].toString());
+        }
+
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, placeTypeData);
+        placeTypeListView.setAdapter(arrayAdapter);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setCancelable(true);
+        builder.setView(placeTypeListView);
+        builder.create();
+        AlertDialog dialog =  builder.show();
+        dialog.show();
+
+        //When user clicks on item
+        placeTypeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                changeUserDetail("preferredLandmarkType", arrayAdapter.getItem(position));
+                dialog.dismiss();
+            }
+        });
+
+    }
 
 }

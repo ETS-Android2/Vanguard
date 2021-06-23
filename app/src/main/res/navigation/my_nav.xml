@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/my_nav"
-    app:startDestination="@id/mapsFragment">
+    app:startDestination="@id/mapsFragmentV2">
 
     <fragment
         android:id="@+id/profileFragment"
@@ -26,4 +26,14 @@
         android:name="com.sandile.vanguard.Views.Fragmants.Fragment_route"
         android:label="fragment_route"
         tools:layout="@layout/fragment_route" />
+    <fragment
+        android:id="@+id/nearby_locations"
+        android:name="com.sandile.vanguard.nearby_locations"
+        android:label="fragment_nearby_locations"
+        tools:layout="@layout/fragment_nearby_locations" />
+    <fragment
+        android:id="@+id/mapsFragmentV2"
+        android:name="com.sandile.vanguard.Views.Fragmants.MapsFragmentV2"
+        android:label="temp_maps_fragment"
+        tools:layout="@layout/temp_maps_fragment" />
 </navigation>

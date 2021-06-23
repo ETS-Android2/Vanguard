@@ -29,9 +29,6 @@ import static androidx.navigation.Navigation.findNavController;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    int LOCATION_REQUEST_CODE = 132;
-    public static double longitude, latitude;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,8 +38,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         NavController navController = Navigation.findNavController(this, R.id.fragmentContainerView);
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
 
-
-
     }
 
     @Override
@@ -50,16 +45,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()) {
         }
     }
-
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-    }
-
-
-
-
 
 }

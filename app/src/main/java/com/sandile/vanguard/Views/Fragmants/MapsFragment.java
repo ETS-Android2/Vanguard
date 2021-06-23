@@ -105,8 +105,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
 
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-
-
         //Initialize Google Play Services
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -246,8 +244,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
                 Status status = Autocomplete.getStatusFromIntent(data);
                 new SnackTwo().redSnack(getActivity(), status.getStatusMessage());
-            } else if (resultCode == RESULT_CANCELED) {
-                new SnackTwo().orangeSnack(getActivity(), "Click on a place to add it!");
             }
             return;
         }

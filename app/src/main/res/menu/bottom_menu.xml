@@ -3,13 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/mapsFragment"
+        android:id="@+id/mapsFragmentV2"
         android:icon="@drawable/ic_map"
         android:title="Map" />
+
     <item
-        android:id="@+id/fragment_route"
-        android:icon="@drawable/ic_direction"
-        android:title="Route" />
+        android:id="@+id/nearby_locations"
+        android:icon="@drawable/ic_nearby"
+        android:title="Map" />
+
     <item
         android:id="@+id/myLandmarksFragment"
         android:icon="@drawable/ic_list"

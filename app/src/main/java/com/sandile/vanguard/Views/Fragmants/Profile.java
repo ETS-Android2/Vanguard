@@ -285,8 +285,7 @@ public class Profile extends Fragment implements View.OnClickListener{
         AlertDialog dialog =  builder.show();
         dialog.show();
 
-        //When user clicks on item
-        placeTypeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        placeTypeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {//When user clicks on item
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 changeUserDetail("preferredLandmarkType", arrayAdapter.getItem(position));

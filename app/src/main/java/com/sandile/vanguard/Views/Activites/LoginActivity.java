@@ -26,7 +26,7 @@ import com.sandile.vanguard.Phone.Keyboard;
 import com.sandile.vanguard.R;
 import com.sandile.vanguard.SnackTwo;
 import com.sandile.vanguard.UserDetail;
-import com.sandile.vanguard.Views.Fragmants.TempMapsFragment;
+import com.sandile.vanguard.Views.Fragmants.MapsFragmentV2;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -62,7 +62,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 break;
             case R.id.login_tv_vanguard://Open map
                 getSupportFragmentManager().beginTransaction()
-                        .add(android.R.id.content, new TempMapsFragment()).commit();
+                        .add(android.R.id.content, new MapsFragmentV2()).commit();
                 break;
         }
 

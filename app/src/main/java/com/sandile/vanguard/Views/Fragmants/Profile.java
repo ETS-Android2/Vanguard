@@ -34,11 +34,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link Profile#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class Profile extends Fragment implements View.OnClickListener{
 
     //Firebase
@@ -138,6 +133,9 @@ public class Profile extends Fragment implements View.OnClickListener{
                     userDetail.setIsMetric(Boolean.parseBoolean(snapshot.child("isMetric").getValue().toString()));
 
                     userDetailGlobal = userDetail;
+
+                    userDetail.setUserSessionDetails(userDetail);
+
                     listSetup(userDetail);
                 }
                 else{

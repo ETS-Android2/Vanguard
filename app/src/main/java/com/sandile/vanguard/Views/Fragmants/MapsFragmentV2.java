@@ -17,6 +17,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -40,6 +42,7 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
+import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.maps.DirectionsApiRequest;
 import com.google.maps.GeoApiContext;
@@ -47,9 +50,11 @@ import com.google.maps.PendingResult;
 import com.google.maps.internal.PolylineEncoding;
 import com.google.maps.model.DirectionsResult;
 import com.google.maps.model.DirectionsRoute;
+import com.google.maps.model.Unit;
 import com.sandile.vanguard.MetricToImperial;
 import com.sandile.vanguard.R;
 import com.sandile.vanguard.SnackTwo;
+import com.sandile.vanguard.UserDetail;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -62,7 +67,10 @@ import static android.app.Activity.RESULT_OK;
 
 public class MapsFragmentV2 extends Fragment implements OnMapReadyCallback {
 
+    //Pallets
     private FloatingActionButton fab_search, fab_direction;
+    private AppBarLayout tb_toolbar;
+    private TextView tv_time, tv_distance;
 
     private GeoApiContext geoApiContext = null;
     private GoogleMap mMap;
@@ -179,11 +187,11 @@ public class MapsFragmentV2 extends Fragment implements OnMapReadyCallback {
 
         Places.initialize(view.getContext(), getString(R.string.google_api_key));
 
-        setUpFab(view);
+        palletsSetup(view);
 
     }
 
-    private void setUpFab(View view) {
+    private void palletsSetup(View view) {
         fab_search = view.findViewById(R.id.maps_fab_search);
         fab_search.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -205,6 +213,7 @@ public class MapsFragmentV2 extends Fragment implements OnMapReadyCallback {
                     fab_direction.setVisibility(View.INVISIBLE);
                     new SnackTwo().greenSnack(getActivity(),"Getting direction...");
                     calculateDirections(tempDestination);
+                    tb_toolbar.setVisibility(View.VISIBLE);
                 }
                 else{
                     new SnackTwo().redSnack(getActivity(),"Click on map to choose destination");
@@ -212,6 +221,10 @@ public class MapsFragmentV2 extends Fragment implements OnMapReadyCallback {
                 }
             }
         });
+
+        tb_toolbar = view.findViewById(R.id.appBarLayout);
+        tv_time = view.findViewById(R.id.maps_tv_toolbar_time);
+        tv_distance = view.findViewById(R.id.maps_tv_toolbar_distance);
 
     }
 
@@ -281,9 +294,6 @@ public class MapsFragmentV2 extends Fragment implements OnMapReadyCallback {
     }
 
     private void calculateDirections(LatLng latLng) {
-
-        Log.d("TempMapsFragment.java", "calculateDirections: calculating directions.");
-
         com.google.maps.model.LatLng destination = new com.google.maps.model.LatLng(
                 latLng.latitude,
                 latLng.longitude
@@ -297,6 +307,19 @@ public class MapsFragmentV2 extends Fragment implements OnMapReadyCallback {
                         currentUserLocation.longitude
                 )
         );
+
+        try{
+            Boolean tempIsMetric = new UserDetail().getUserSessionDetails().getIsMetric();
+            if(tempIsMetric){
+                directions.units(Unit.METRIC);
+            }
+            else{
+                directions.units(Unit.IMPERIAL);
+            }
+        }catch (Exception e) {
+            new SnackTwo().redSnack(getActivity(), "You are not signed in!");
+        }
+
         Log.d("TempMapsFragment.java", "calculateDirections: destination: " + destination.toString());
 
         directions.destination(destination).setCallback(new PendingResult.Callback<DirectionsResult>() {
@@ -305,13 +328,15 @@ public class MapsFragmentV2 extends Fragment implements OnMapReadyCallback {
                 Log.d("TempMapsFragment.java", "onResult: routes: " + result.routes[0].toString());
                 Log.d("TempMapsFragment.java", "onResult: distance: " + result.routes[0].legs[0].distance);
                 Log.d("TempMapsFragment.java", "onResult: Duration: " + result.routes[0].legs[0].duration);
-                Log.d("TempMapsFragment.java", "onResult: Duration: " + result.routes[0].legs[0].endAddress);
+                Log.d("TempMapsFragment.java", "onResult: End address: " + result.routes[0].legs[0].endAddress);
                 Log.d("TempMapsFragment.java", "onResult: geocodedWayPoints: " + result.geocodedWaypoints[0].toString());
 
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
                         destinationMarker.setTitle("Destination");
+                        tv_time.setText(result.routes[0].legs[0].duration.toString());
+                        tv_distance.setText(result.routes[0].legs[0].distance.toString());
                         destinationMarker.setSnippet(result.routes[0].legs[0].endAddress);
 
                     }

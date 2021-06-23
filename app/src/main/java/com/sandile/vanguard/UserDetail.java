@@ -15,8 +15,16 @@ public class UserDetail {//Singleton used
         this.isMetric = isMetric;
     }
 
-    public UserDetail(){
+    public UserDetail () {
 
+    }
+
+    public UserDetail getUserSessionDetails() {
+        return userSessionDetails;
+    }
+
+    public void setUserSessionDetails(UserDetail userDetail) {
+        this.userSessionDetails = userDetail;
     }
 
     ///////////getters and setters
@@ -27,6 +35,7 @@ public class UserDetail {//Singleton used
     public void setEmail(String email) {
         this.email = email;
     }
+
 
     public String getFavouriteLandmark() {
         return favouriteLandmark;

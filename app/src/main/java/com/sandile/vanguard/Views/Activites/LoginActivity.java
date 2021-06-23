@@ -3,11 +3,13 @@ package com.sandile.vanguard.Views.Activites;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
@@ -22,6 +24,11 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.sandile.vanguard.Phone.Keyboard;
 import com.sandile.vanguard.R;
 import com.sandile.vanguard.SnackTwo;
@@ -36,6 +43,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private ProgressBar pb_login;
 
     private FirebaseAuth mAuth;
+    private DatabaseReference firebaseReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,6 +102,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                         if(user.isEmailVerified()){
                             UserDetail.currentUserId = user.getUid();
+                            getUserDetailsFirebase();
                             finish();
                             startActivity(new Intent(LoginActivity.this, MainActivity.class));
                         }
@@ -200,6 +209,36 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             return false;
         }
         return true;
+    }
+
+    public void getUserDetailsFirebase(){
+
+        firebaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(UserDetail.currentUserId);
+
+        firebaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+
+                    UserDetail userDetail = new UserDetail();
+
+                    userDetail.setEmail(snapshot.child("email").getValue().toString());
+                    userDetail.setFavouriteLandmark(snapshot.child("favouriteLandmark").getValue().toString());
+                    userDetail.setPreferredLandmarkType(snapshot.child("preferredLandmarkType").getValue().toString());
+                    userDetail.setIsMetric(Boolean.parseBoolean(snapshot.child("isMetric").getValue().toString()));
+
+                    userDetail.setUserSessionDetails(userDetail);
+                }
+                else{
+                    new SnackTwo().redSnack(LoginActivity.this, "Could not get your details");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                new SnackTwo().redSnack(LoginActivity.this, error.getMessage());
+            }
+        });
     }
 
     private Boolean areInputsValid(){//!!! UserDetail.getPreferredLandmarkType is used as holder

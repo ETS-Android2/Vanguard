@@ -77,7 +77,7 @@ import static android.app.Activity.RESULT_OK;
 public class MapsFragmentV2 extends Fragment implements OnMapReadyCallback {
 
     //Pallets
-    private FloatingActionButton fab_search, fab_direction, fab_nearby;
+    private FloatingActionButton fab_search, fab_direction, fab_nearby, fab_mapLayer;
     private AppBarLayout tb_toolbar;
     private TextView tv_time, tv_distance;
     private ImageView iv_stopNav;
@@ -88,10 +88,12 @@ public class MapsFragmentV2 extends Fragment implements OnMapReadyCallback {
     private static FusedLocationProviderClient fusedLocationClient;
     private Marker currentUserMarker, destinationMarker;
     private static int AUTOCOMPLETE_REQUEST_CODE = 1;
+    private static int currentMapLayer = GoogleMap.MAP_TYPE_NORMAL;
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.setMapType(currentMapLayer);
         mMap.getUiSettings().setZoomControlsEnabled(true);
 
         //Setting up the button!
@@ -244,6 +246,27 @@ public class MapsFragmentV2 extends Fragment implements OnMapReadyCallback {
             }
         });
 
+        fab_mapLayer = view.findViewById(R.id.map_fab_mapLayer);
+        fab_mapLayer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                for(int i = 0; i <= 4; i++){
+                    if(currentMapLayer == i){
+                        currentMapLayer = i+1;
+                        mMap.setMapType(currentMapLayer);
+                        break;
+                    }
+                    else if(currentMapLayer == 4){
+                        currentMapLayer = 0;
+                        mMap.setMapType(currentMapLayer);
+                        break;
+                    }
+                }
+
+            }
+        });
+
         iv_stopNav = view.findViewById(R.id.maps_iv_stopNav);
         iv_stopNav.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -251,6 +274,7 @@ public class MapsFragmentV2 extends Fragment implements OnMapReadyCallback {
                 new SnackTwo().greenSnack(getActivity(),"Nav is stopping");
             }
         });
+
 
         tb_toolbar = view.findViewById(R.id.appBarLayout);
         tv_time = view.findViewById(R.id.maps_tv_toolbar_time);

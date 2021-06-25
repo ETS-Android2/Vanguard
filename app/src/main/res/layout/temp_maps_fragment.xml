@@ -21,7 +21,7 @@
         android:id="@+id/maps_fab_search"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="20dp"
         android:clickable="true"
         android:src="@drawable/ic_search"
         app:backgroundTint="@color/white"
@@ -47,8 +47,8 @@
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
-        android:visibility="gone"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -130,13 +130,26 @@
         android:id="@+id/maps_fab_nearby"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginBottom="8dp"
+
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="20dp"
         android:clickable="true"
         app:backgroundTint="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/ic_nearby" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/map_fab_mapLayer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:fabCustomSize="40dp"
+        android:clickable="true"
+        app:backgroundTint="@color/white"
+        app:layout_constraintBottom_toTopOf="@+id/maps_fab_nearby"
+        app:layout_constraintEnd_toEndOf="@+id/maps_fab_nearby"
+        app:layout_constraintStart_toStartOf="@+id/maps_fab_nearby"
+        app:srcCompat="@drawable/ic_layers" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

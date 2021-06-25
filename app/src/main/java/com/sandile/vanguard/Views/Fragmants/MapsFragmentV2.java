@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.appcompat.widget.Toolbar;
 
@@ -47,10 +48,16 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.maps.DirectionsApiRequest;
 import com.google.maps.GeoApiContext;
 import com.google.maps.PendingResult;
+import com.google.maps.PlacesApi;
+import com.google.maps.errors.ApiException;
 import com.google.maps.internal.PolylineEncoding;
 import com.google.maps.model.DirectionsResult;
 import com.google.maps.model.DirectionsRoute;
+import com.google.maps.model.PlaceDetails;
+import com.google.maps.model.PlaceType;
+import com.google.maps.model.PlacesSearchResult;
 import com.google.maps.model.Unit;
+import com.sandile.vanguard.MapHelper;
 import com.sandile.vanguard.MetricToImperial;
 import com.sandile.vanguard.R;
 import com.sandile.vanguard.SnackTwo;
@@ -58,6 +65,8 @@ import com.sandile.vanguard.UserDetail;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -68,9 +77,10 @@ import static android.app.Activity.RESULT_OK;
 public class MapsFragmentV2 extends Fragment implements OnMapReadyCallback {
 
     //Pallets
-    private FloatingActionButton fab_search, fab_direction;
+    private FloatingActionButton fab_search, fab_direction, fab_nearby;
     private AppBarLayout tb_toolbar;
     private TextView tv_time, tv_distance;
+    private ImageView iv_stopNav;
 
     private GeoApiContext geoApiContext = null;
     private GoogleMap mMap;
@@ -82,6 +92,7 @@ public class MapsFragmentV2 extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.getUiSettings().setZoomControlsEnabled(true);
 
         //Setting up the button!
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -103,20 +114,33 @@ public class MapsFragmentV2 extends Fragment implements OnMapReadyCallback {
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(@NonNull @NotNull LatLng latLng) {
+
+                destinationMarker = mMap.addMarker(new MarkerOptions()
+                        .snippet("Pin")
+                        .snippet("lat: " + latLng.latitude+"lng: " + latLng.longitude)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                        .position(new LatLng(latLng.latitude, latLng.longitude)));
+
+            }
+        });
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(@NonNull @NotNull Marker marker) {
+
                 if(destinationMarker != null){
                     destinationMarker.remove();
                 }
                 destinationMarker = mMap.addMarker(new MarkerOptions()
                         .snippet("Pin")
-                        .snippet("lat: " + latLng.latitude+"lng: " + latLng.longitude)
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
-                        .position(new LatLng(latLng.latitude, latLng.longitude)));
+                        .snippet("lat: " + marker.getPosition().latitude+"lng: " + marker.getPosition().longitude)
+                        .position(marker.getPosition()));
 
                 //Setting up destination
-                destinationLatLng = latLng;
+                destinationLatLng = marker.getPosition();
 
                 fab_direction.setVisibility(View.VISIBLE);
-
+                return false;
             }
         });
 
@@ -128,34 +152,7 @@ public class MapsFragmentV2 extends Fragment implements OnMapReadyCallback {
         });
 
 
-//        PlacesSearchResult[] placesSearchResults = new MapHelper().nearbyPlaces(geoApiContext, new com.google.maps.model.LatLng(currentUserLocation.latitude, currentUserLocation.longitude), PlaceType.BAR).results;
-//
-//        if(placesSearchResults != null){
-//            Log.e("response1Tag", placesSearchResults[0].toString());
-//            Log.e("response2Tag", placesSearchResults[1].toString());
-//
-//            double lat1 = placesSearchResults[0].geometry.location.lat;
-//            double lng1 = placesSearchResults[0].geometry.location.lng;
-//
-//            double lat2 = placesSearchResults[1].geometry.location.lat;
-//            double lng2 = placesSearchResults[1].geometry.location.lng;
-//
-//            double lat3 = placesSearchResults[3].geometry.location.lat;
-//            double lng3 = placesSearchResults[3].geometry.location.lng;
-//
-//            double lat4 = placesSearchResults[4].geometry.location.lat;
-//            double lng4 = placesSearchResults[4].geometry.location.lng;
-//
-//            mMap.addMarker(new MarkerOptions().position(new LatLng(lat1, lng1))).setTitle("marker 1");
-//            mMap.addMarker(new MarkerOptions().position(new LatLng(lat2, lng2))).setTitle("marker 2");
-//            mMap.addMarker(new MarkerOptions().position(new LatLng(lat3, lng3))).setTitle("marker 3");
-//            mMap.addMarker(new MarkerOptions().position(new LatLng(lat4, lng4))).setTitle("marker 4");
-//
-//            mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lat1, lng1)));
-//        }
-//        else{
-//            new SnackTwo().redSnack(getActivity(),"Could not find any places");
-//        }
+
 
         setUserCurrentLocation();
     }
@@ -222,10 +219,107 @@ public class MapsFragmentV2 extends Fragment implements OnMapReadyCallback {
             }
         });
 
+        fab_nearby = view.findViewById(R.id.maps_fab_nearby);
+        fab_nearby.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new SnackTwo().greenSnack(getActivity(),"Showing nearby places...");
+
+                UserDetail tempUserDetail =  new UserDetail().getUserSessionDetails();
+
+                try {
+                    PlaceType tempPlaceType = PlaceType.valueOf(tempUserDetail.getPreferredLandmarkType().toUpperCase());
+
+                    viewNearbyPlaces(tempPlaceType);
+                } catch (InterruptedException e) {
+                    new SnackTwo().redSnack(getActivity(),e.getMessage());
+//                    e.printStackTrace();
+                } catch (ApiException e) {
+                    new SnackTwo().redSnack(getActivity(),e.getMessage());
+//                    e.printStackTrace();
+                } catch (IOException e) {
+                    new SnackTwo().redSnack(getActivity(),e.getMessage());
+//                    e.printStackTrace();
+                }
+            }
+        });
+
+        iv_stopNav = view.findViewById(R.id.maps_iv_stopNav);
+        iv_stopNav.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new SnackTwo().greenSnack(getActivity(),"Nav is stopping");
+            }
+        });
+
         tb_toolbar = view.findViewById(R.id.appBarLayout);
         tv_time = view.findViewById(R.id.maps_tv_toolbar_time);
         tv_distance = view.findViewById(R.id.maps_tv_toolbar_distance);
 
+    }
+
+    //TODO: pass in current user location, PLACE_TYPE
+    private void viewNearbyPlaces(PlaceType userPlaceType) throws InterruptedException, ApiException, IOException {
+        PlacesSearchResult[] placesSearchResults = new MapHelper().nearbyPlaces(geoApiContext, new com.google.maps.model.LatLng(currentUserLocation.latitude, currentUserLocation.longitude), userPlaceType).results;
+
+        if(placesSearchResults != null){
+            Log.e("response1Tag", placesSearchResults[0].toString());
+            Log.e("response2Tag", placesSearchResults[1].toString());
+
+            double lat1 = placesSearchResults[0].geometry.location.lat;
+            double lng1 = placesSearchResults[0].geometry.location.lng;
+
+            double lat2 = placesSearchResults[1].geometry.location.lat;
+            double lng2 = placesSearchResults[1].geometry.location.lng;
+
+            double lat3 = placesSearchResults[3].geometry.location.lat;
+            double lng3 = placesSearchResults[3].geometry.location.lng;
+
+            double lat4 = placesSearchResults[4].geometry.location.lat;
+            double lng4 = placesSearchResults[4].geometry.location.lng;
+
+            //TODO: PUT THIS IN A METHOD, GETTING DETAILS OF A PLACE
+
+            PlaceDetails details = PlacesApi.placeDetails(geoApiContext, placesSearchResults[0].placeId).await();
+
+            String name = details.name;
+            String address = details.formattedAddress;
+            URL icon = details.icon;
+            double lat = details.geometry.location.lat;
+            double lng = details.geometry.location.lng;
+            String vicinity = details.vicinity;
+            String placeId = details.placeId;
+            String phoneNum = details.internationalPhoneNumber;
+            String[] openHours = details.openingHours!=null ? details.openingHours.weekdayText : new String[0];
+            String hoursText = "";
+            for(String sv : openHours) {
+                hoursText += sv + "\n";
+            }
+            float rating = details.rating;
+
+            String content = address + "\n" +
+                    "Place ID: " + placeId + "\n" +
+                    "Rating: " + rating + "\n" +
+                    "Phone: " + phoneNum + "\n" +
+                    "Open Hours: \n" + hoursText;
+
+            mMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(lat1, lng1))
+                    .snippet(content)
+                    .title(name));
+
+            //TODO: PUT THIS IN A METHOD, GETTING DETAILS OF A PLACE
+
+//            mMap.addMarker(new MarkerOptions().position(new LatLng(lat1, lng1))).setTitle("marker 1");
+            mMap.addMarker(new MarkerOptions().position(new LatLng(lat2, lng2))).setTitle("marker 2");
+            mMap.addMarker(new MarkerOptions().position(new LatLng(lat3, lng3))).setTitle("marker 3");
+            mMap.addMarker(new MarkerOptions().position(new LatLng(lat4, lng4))).setTitle("marker 4");
+
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lat1, lng1)));
+        }
+        else{
+            new SnackTwo().redSnack(getActivity(),"Could not find any places");
+        }
     }
 
     //This is used for google search, then placing pin on map
@@ -338,7 +432,6 @@ public class MapsFragmentV2 extends Fragment implements OnMapReadyCallback {
                         tv_time.setText(result.routes[0].legs[0].duration.toString());
                         tv_distance.setText(result.routes[0].legs[0].distance.toString());
                         destinationMarker.setSnippet(result.routes[0].legs[0].endAddress);
-
                     }
                 });
 

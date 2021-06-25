@@ -1,7 +1,7 @@
 package com.sandile.vanguard;
 
 public class UserDetail {//Singleton used
-    private static UserDetail userSessionDetails;
+    public static UserDetail userSessionDetails;
 
     private String email, favouriteLandmark, preferredLandmarkType;
     private Boolean isMetric;

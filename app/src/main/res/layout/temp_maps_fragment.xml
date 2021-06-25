@@ -13,7 +13,7 @@
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
-        app:layout_constraintVertical_bias="0.987"
+        app:layout_constraintVertical_bias="0.0"
         tools:context=".Views.Fragmants.MapsFragmentV2"
         tools:layout_editor_absoluteX="0dp" />
 
@@ -111,22 +111,32 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/maps_tb_toolbar"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_time" />
+                app:srcCompat="@drawable/ic_drive" />
+
+            <ImageView
+                android:id="@+id/maps_iv_stopNav"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:layout_marginEnd="24dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/maps_tb_toolbar"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/cross_mark" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/maps_fab_exitNac"
-        android:visibility="gone"
+        android:id="@+id/maps_fab_nearby"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginBottom="8dp"
         android:clickable="true"
         app:backgroundTint="@color/white"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/appBarLayout"
-        app:srcCompat="@drawable/cross_mark" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/ic_nearby" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

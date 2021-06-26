@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.gms.common.api.Status;
@@ -82,13 +83,22 @@ public class MapsFragmentV2 extends Fragment implements OnMapReadyCallback {
     private TextView tv_time, tv_distance;
     private ImageView iv_stopNav;
 
+    //Map
     private GeoApiContext geoApiContext = null;
     private GoogleMap mMap;
-    public LatLng currentUserLocation = null, destinationLatLng = null;
     private static FusedLocationProviderClient fusedLocationClient;
-    private Marker currentUserMarker, destinationMarker;
+    private Marker currentUserMarker;
     private static int AUTOCOMPLETE_REQUEST_CODE = 1;
     private static int currentMapLayer = GoogleMap.MAP_TYPE_NORMAL;
+
+    private Marker tempMarker = null;
+
+    private Boolean isNavMode = false;//This is changed in enterNavigationMode()
+
+    private Polyline mMapPolyline = null;
+    //User
+    public static LatLng currentUserLocation = null, destinationLatLng = null;
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -112,16 +122,25 @@ public class MapsFragmentV2 extends Fragment implements OnMapReadyCallback {
             }
         });
 
-        //User clicks on map and I will navigate them there
+        //Click on map and add marker
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(@NonNull @NotNull LatLng latLng) {
 
-                destinationMarker = mMap.addMarker(new MarkerOptions()
-                        .snippet("Pin")
-                        .snippet("lat: " + latLng.latitude+"lng: " + latLng.longitude)
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-                        .position(new LatLng(latLng.latitude, latLng.longitude)));
+                if(!isNavMode){
+                    fab_direction.setVisibility(View.INVISIBLE);
+
+                    if (tempMarker != null) {
+                        tempMarker.remove();
+                    }
+
+                    tempMarker = mMap.addMarker(new MarkerOptions()
+                            .title("Pin")
+                            .snippet("Click to view details")
+                            .position(latLng)
+                            .draggable(true)
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                }
 
             }
         });
@@ -130,18 +149,23 @@ public class MapsFragmentV2 extends Fragment implements OnMapReadyCallback {
             @Override
             public boolean onMarkerClick(@NonNull @NotNull Marker marker) {
 
-                if(destinationMarker != null){
-                    destinationMarker.remove();
-                }
-                destinationMarker = mMap.addMarker(new MarkerOptions()
-                        .snippet("Pin")
-                        .snippet("lat: " + marker.getPosition().latitude+"lng: " + marker.getPosition().longitude)
-                        .position(marker.getPosition()));
+//                if (destinationMarker != null) {
+//                    destinationMarker.remove();
+//                    fab_direction.setVisibility(View.INVISIBLE);
+//                }
+//
+//                destinationMarker = mMap.addMarker(new MarkerOptions()
+//                        .title("Pin")
+//                        .snippet("Click to view details")
+//                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+//                        .position(marker.getPosition()));
 
                 //Setting up destination
+
                 destinationLatLng = marker.getPosition();
 
                 fab_direction.setVisibility(View.VISIBLE);
+
                 return false;
             }
         });
@@ -153,10 +177,21 @@ public class MapsFragmentV2 extends Fragment implements OnMapReadyCallback {
             }
         });
 
+        if (currentUserLocation == null) {
+            setUserCurrentLocation();
+        } else {
+            mMap.addMarker(new MarkerOptions()
+                    .position(currentUserLocation)
+                    .title("Me")
+                    .snippet("Click to view details")
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
 
-
-
-        setUserCurrentLocation();
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(currentUserLocation)
+                    .zoom(15)                   // Sets the zoom
+                    .build();                   // Creates a CameraPosition from the builder
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        }
     }
 
     @Nullable
@@ -188,6 +223,47 @@ public class MapsFragmentV2 extends Fragment implements OnMapReadyCallback {
 
         palletsSetup(view);
 
+    }
+
+    private void enterNavigationMode(boolean isEnter) {
+        if (isEnter) {
+            isNavMode = true;
+            //App bar
+            tb_toolbar.setVisibility(View.VISIBLE);
+
+            if(mMapPolyline != null){
+                mMapPolyline.remove();
+            }
+
+            //Location btn
+            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            mMap.setMyLocationEnabled(false);
+
+            //Search btn
+            fab_mapLayer.setVisibility(View.INVISIBLE);
+            fab_mapLayer.setVisibility(View.INVISIBLE);
+            fab_search.setVisibility(View.INVISIBLE);
+            fab_nearby.setVisibility(View.INVISIBLE);
+        }
+        else{
+            isNavMode = false;
+
+            //App bar
+            tb_toolbar.setVisibility(View.GONE);
+
+            //Location btn
+            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            mMap.setMyLocationEnabled(true);
+
+            //Search btn
+            fab_mapLayer.setVisibility(View.VISIBLE);
+            fab_search.setVisibility(View.VISIBLE);
+            fab_nearby.setVisibility(View.VISIBLE);
+        }
     }
 
     private void palletsSetup(View view) {
@@ -271,7 +347,8 @@ public class MapsFragmentV2 extends Fragment implements OnMapReadyCallback {
         iv_stopNav.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new SnackTwo().greenSnack(getActivity(),"Nav is stopping");
+                mMapPolyline.remove();
+                enterNavigationMode(false);
             }
         });
 
@@ -342,7 +419,7 @@ public class MapsFragmentV2 extends Fragment implements OnMapReadyCallback {
             mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lat1, lng1)));
         }
         else{
-            new SnackTwo().redSnack(getActivity(),"Could not find any places");
+            new SnackTwo().redSnack(getActivity(),"No nearby places of type" + new UserDetail().getUserSessionDetails().getPreferredLandmarkType());
         }
     }
 
@@ -396,8 +473,6 @@ public class MapsFragmentV2 extends Fragment implements OnMapReadyCallback {
                             .snippet("Click to view details")
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
 
-                    currentUserMarker.setTag("This is a tag");
-
                     CameraPosition cameraPosition = new CameraPosition.Builder()
                             .target(currentUserLocation)
                             .zoom(15)                   // Sets the zoom
@@ -412,6 +487,9 @@ public class MapsFragmentV2 extends Fragment implements OnMapReadyCallback {
     }
 
     private void calculateDirections(LatLng latLng) {
+        enterNavigationMode(true);
+        tempMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+
         com.google.maps.model.LatLng destination = new com.google.maps.model.LatLng(
                 latLng.latitude,
                 latLng.longitude
@@ -452,12 +530,16 @@ public class MapsFragmentV2 extends Fragment implements OnMapReadyCallback {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        destinationMarker.setTitle("Destination");
+                        tempMarker.setTitle("Destination");
                         tv_time.setText(result.routes[0].legs[0].duration.toString());
                         tv_distance.setText(result.routes[0].legs[0].distance.toString());
-                        destinationMarker.setSnippet(result.routes[0].legs[0].endAddress);
+                        tempMarker.setSnippet(result.routes[0].legs[0].endAddress);
                     }
                 });
+
+                if(mMapPolyline != null){
+                    mMapPolyline.remove();
+                }
 
                 addPolylinesToMap(result);
             }
@@ -490,9 +572,8 @@ public class MapsFragmentV2 extends Fragment implements OnMapReadyCallback {
                                 latLng.lng
                         ));
                     }
-                    Polyline polyline = mMap.addPolyline(new PolylineOptions().addAll(newDecodedPath));
-                    polyline.setColor(ContextCompat.getColor(getActivity(), R.color.blue_500));
-//                    polyline.setClickable(true); TODO: clicking polyline
+                    mMapPolyline = mMap.addPolyline(new PolylineOptions().addAll(newDecodedPath));
+                    mMapPolyline.setColor(ContextCompat.getColor(getActivity(), R.color.blue_500));
 
                 }
             }

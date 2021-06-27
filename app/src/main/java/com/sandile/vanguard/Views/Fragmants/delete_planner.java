@@ -1,4 +1,4 @@
-package com.sandile.vanguard;
+package com.sandile.vanguard.Views.Fragmants;
 
 import android.os.Bundle;
 
@@ -8,7 +8,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class nearby_locations extends Fragment {
+import com.sandile.vanguard.R;
+
+public class delete_planner extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,13 +67,13 @@ public class nearby_locations extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    public nearby_locations() {
+    public delete_planner() {
         // Required empty public constructor
     }
 
     // TODO: Rename and change types and number of parameters
-    public static nearby_locations newInstance(String param1, String param2) {
-        nearby_locations fragment = new nearby_locations();
+    public static delete_planner newInstance(String param1, String param2) {
+        delete_planner fragment = new delete_planner();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);

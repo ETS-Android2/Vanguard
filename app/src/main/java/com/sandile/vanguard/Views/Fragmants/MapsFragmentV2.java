@@ -2,11 +2,13 @@ package com.sandile.vanguard.Views.Fragmants;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -148,22 +150,7 @@ public class MapsFragmentV2 extends Fragment implements OnMapReadyCallback {
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(@NonNull @NotNull Marker marker) {
-
-//                if (destinationMarker != null) {
-//                    destinationMarker.remove();
-//                    fab_direction.setVisibility(View.INVISIBLE);
-//                }
-//
-//                destinationMarker = mMap.addMarker(new MarkerOptions()
-//                        .title("Pin")
-//                        .snippet("Click to view details")
-//                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-//                        .position(marker.getPosition()));
-
-                //Setting up destination
-
                 destinationLatLng = marker.getPosition();
-
                 fab_direction.setVisibility(View.VISIBLE);
 
                 return false;
@@ -173,7 +160,25 @@ public class MapsFragmentV2 extends Fragment implements OnMapReadyCallback {
         mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(@NonNull @NotNull Marker marker) {
-                new SnackTwo().orangeSnack(getActivity(), "Info window clicked");
+
+                PlaceDetails placeDetails = null;
+                try {
+                    placeDetails = PlacesApi.placeDetails(geoApiContext, marker.getId()).await();
+                } catch (ApiException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                if(placeDetails != null){
+                    showPlaceDetailsDialog(placeDetails);
+                }else{
+                    new SnackTwo().redSnack(getActivity(),"YOU ARE PASSING THE WRONG ID!");
+                }
+
+
             }
         });
 
@@ -223,6 +228,53 @@ public class MapsFragmentV2 extends Fragment implements OnMapReadyCallback {
 
         palletsSetup(view);
 
+    }
+
+    private void showPlaceDetailsDialog(PlaceDetails placeDetails){
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setCancelable(true);
+
+        builder.setTitle(placeDetails.name);
+
+        String address = placeDetails.formattedAddress;
+//      String vicinity = placeDetails.vicinity;
+        String placeId = placeDetails.placeId;
+        String phoneNum = placeDetails.internationalPhoneNumber;
+        String[] openHours = placeDetails.openingHours!=null ? placeDetails.openingHours.weekdayText : new String[0];
+        String hoursText = "";
+        for(String sv : openHours) {
+            hoursText += sv + "\n";
+        }
+        float rating = placeDetails.rating;
+
+        String content = address + "\n" +
+                "Place ID: " + placeId + "\n" +
+                "Rating: " + rating + "\n" +
+                "Phone: " + phoneNum + "\n" +
+                "Open Hours: \n" + hoursText;
+
+        builder.setMessage(content);
+
+
+        builder.setPositiveButton("Add to fav",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        new SnackTwo().orangeSnack(getActivity(), "Feature coming soon");
+
+                    }
+                });
+        builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     private void enterNavigationMode(boolean isEnter) {

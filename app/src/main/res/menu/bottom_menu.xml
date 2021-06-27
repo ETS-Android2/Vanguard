@@ -8,9 +8,9 @@
         android:title="Map" />
 
     <item
-        android:id="@+id/nearby_locations"
-        android:icon="@drawable/ic_nearby"
-        android:title="Map" />
+        android:id="@+id/plannerFragment"
+        android:icon="@drawable/ic_road"
+        android:title="Planner" />
 
     <item
         android:id="@+id/myLandmarksFragment"

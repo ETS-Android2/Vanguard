@@ -27,8 +27,8 @@
         android:label="fragment_route"
         tools:layout="@layout/fragment_route" />
     <fragment
-        android:id="@+id/nearby_locations"
-        android:name="com.sandile.vanguard.nearby_locations"
+        android:id="@+id/fragment_planner"
+        android:name="com.sandile.vanguard.Views.Fragmants.delete_planner"
         android:label="fragment_nearby_locations"
         tools:layout="@layout/fragment_nearby_locations" />
     <fragment
@@ -36,4 +36,9 @@
         android:name="com.sandile.vanguard.Views.Fragmants.MapsFragmentV2"
         android:label="temp_maps_fragment"
         tools:layout="@layout/temp_maps_fragment" />
+    <fragment
+        android:id="@+id/plannerFragment"
+        android:name="com.sandile.vanguard.PlannerFragment"
+        android:label="fragment_planner"
+        tools:layout="@layout/fragment_planner" />
 </navigation>

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/mapsFragmentV2"
+        android:id="@+id/mapsFragment"
         android:icon="@drawable/ic_map"
         android:title="Map" />
 

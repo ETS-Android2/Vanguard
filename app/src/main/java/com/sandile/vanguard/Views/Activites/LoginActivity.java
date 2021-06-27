@@ -3,13 +3,11 @@ package com.sandile.vanguard.Views.Activites;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
-import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
@@ -33,7 +31,7 @@ import com.sandile.vanguard.Phone.Keyboard;
 import com.sandile.vanguard.R;
 import com.sandile.vanguard.SnackTwo;
 import com.sandile.vanguard.UserDetail;
-import com.sandile.vanguard.Views.Fragmants.MapsFragmentV2;
+import com.sandile.vanguard.Views.Fragmants.MapFragment;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -70,7 +68,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 break;
             case R.id.login_tv_vanguard://Open map
                 getSupportFragmentManager().beginTransaction()
-                        .add(android.R.id.content, new MapsFragmentV2()).commit();
+                        .add(android.R.id.content, new MapFragment()).commit();
                 break;
         }
 

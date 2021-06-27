@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/my_nav"
-    app:startDestination="@id/mapsFragmentV2">
+    app:startDestination="@id/mapsFragment">
 
     <fragment
         android:id="@+id/profileFragment"
@@ -12,30 +12,15 @@
         tools:layout="@layout/fragment_profile" />
     <fragment
         android:id="@+id/mapsFragment"
-        android:name="com.sandile.vanguard.Views.Fragmants.MapsFragment"
+        android:name="com.sandile.vanguard.Views.Fragmants.MapFragment"
         android:label="fragment_maps"
-        tools:layout="@layout/fragment_maps"
+        tools:layout="@layout/fragment_map"
         />
     <fragment
         android:id="@+id/myLandmarksFragment"
         android:name="com.sandile.vanguard.Views.Fragmants.MyLandmarks"
         android:label="fragment_my_landmarks"
         tools:layout="@layout/fragment_my_landmarks" />
-    <fragment
-        android:id="@+id/fragment_route"
-        android:name="com.sandile.vanguard.Views.Fragmants.Fragment_route"
-        android:label="fragment_route"
-        tools:layout="@layout/fragment_route" />
-    <fragment
-        android:id="@+id/fragment_planner"
-        android:name="com.sandile.vanguard.Views.Fragmants.delete_planner"
-        android:label="fragment_nearby_locations"
-        tools:layout="@layout/fragment_nearby_locations" />
-    <fragment
-        android:id="@+id/mapsFragmentV2"
-        android:name="com.sandile.vanguard.Views.Fragmants.MapsFragmentV2"
-        android:label="temp_maps_fragment"
-        tools:layout="@layout/temp_maps_fragment" />
     <fragment
         android:id="@+id/plannerFragment"
         android:name="com.sandile.vanguard.Views.Fragmants.PlannerFragment"

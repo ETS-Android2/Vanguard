@@ -1,6 +1,5 @@
 package com.sandile.vanguard.Views.Fragmants;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -9,19 +8,14 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
-import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ListView;
 
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.Autocomplete;
@@ -38,10 +32,7 @@ import com.sandile.vanguard.PlaceDetails;
 import com.sandile.vanguard.R;
 import com.sandile.vanguard.SnackTwo;
 import com.sandile.vanguard.UserDetail;
-import com.sandile.vanguard.Views.Activites.MainActivity;
-import com.sandile.vanguard.Views.Activites.RegisterActivity;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -49,7 +40,7 @@ import java.util.List;
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 
-public class MyLandmarks extends Fragment {
+public class MyLandmarksFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private String mParam1;
@@ -65,12 +56,12 @@ public class MyLandmarks extends Fragment {
 
     final ArrayList<PlaceDetails> tempPlaces = new ArrayList<PlaceDetails>();
 
-    public MyLandmarks() {
+    public MyLandmarksFragment() {
         // Required empty public constructor
     }
 
-    public static MyLandmarks newInstance(String param1, String param2) {
-        MyLandmarks fragment = new MyLandmarks();
+    public static MyLandmarksFragment newInstance(String param1, String param2) {
+        MyLandmarksFragment fragment = new MyLandmarksFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);

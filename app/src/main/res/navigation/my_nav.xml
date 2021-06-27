@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/profileFragment"
-        android:name="com.sandile.vanguard.Views.Fragmants.Profile"
+        android:name="com.sandile.vanguard.Views.Fragmants.ProfileFragment"
         android:label="fragment_profile"
         tools:layout="@layout/fragment_profile" />
     <fragment
@@ -18,7 +18,7 @@
         />
     <fragment
         android:id="@+id/myLandmarksFragment"
-        android:name="com.sandile.vanguard.Views.Fragmants.MyLandmarks"
+        android:name="com.sandile.vanguard.Views.Fragmants.MyLandmarksFragment"
         android:label="fragment_my_landmarks"
         tools:layout="@layout/fragment_my_landmarks" />
     <fragment

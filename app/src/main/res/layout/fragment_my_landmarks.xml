@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/blue_500"
-    tools:context=".Views.Fragmants.MyLandmarks">
+    tools:context=".Views.Fragmants.MyLandmarksFragment">
 
     <ImageView
         android:id="@+id/imageView3"

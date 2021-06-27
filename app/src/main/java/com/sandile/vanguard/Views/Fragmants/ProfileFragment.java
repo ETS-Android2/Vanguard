@@ -25,7 +25,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.maps.model.PlaceType;
-import com.sandile.vanguard.PlaceDetails;
 import com.sandile.vanguard.R;
 import com.sandile.vanguard.SnackTwo;
 import com.sandile.vanguard.UserDetail;
@@ -34,7 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Profile extends Fragment implements View.OnClickListener{
+public class ProfileFragment extends Fragment implements View.OnClickListener{
 
     //Firebase
     private DatabaseReference firebaseReference;
@@ -52,7 +51,7 @@ public class Profile extends Fragment implements View.OnClickListener{
     //Objects
     public static UserDetail userDetailGlobal;
 
-    public Profile() {
+    public ProfileFragment() {
         // Required empty public constructor
     }
 
@@ -82,8 +81,8 @@ public class Profile extends Fragment implements View.OnClickListener{
         return view;
     }
 
-    public static Profile newInstance(String param1, String param2) {
-        Profile fragment = new Profile();
+    public static ProfileFragment newInstance(String param1, String param2) {
+        ProfileFragment fragment = new ProfileFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);

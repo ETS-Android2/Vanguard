@@ -41,11 +41,6 @@ import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 
 public class MyLandmarksFragment extends Fragment {
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-    private String mParam1;
-    private String mParam2;
-
     //using map api
     private static int AUTOCOMPLETE_REQUEST_CODE = 1;
 
@@ -60,23 +55,9 @@ public class MyLandmarksFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static MyLandmarksFragment newInstance(String param1, String param2) {
-        MyLandmarksFragment fragment = new MyLandmarksFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-
     }
 
     @Override

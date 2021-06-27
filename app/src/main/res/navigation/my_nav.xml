@@ -38,7 +38,7 @@
         tools:layout="@layout/temp_maps_fragment" />
     <fragment
         android:id="@+id/plannerFragment"
-        android:name="com.sandile.vanguard.PlannerFragment"
+        android:name="com.sandile.vanguard.Views.Fragmants.PlannerFragment"
         android:label="fragment_planner"
         tools:layout="@layout/fragment_planner" />
 </navigation>

@@ -18,6 +18,7 @@ import android.widget.TextView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -140,7 +141,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
 
     private void forgotPassword() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
         builder.setTitle("Enter email you registered with");
 
         // Set up the input

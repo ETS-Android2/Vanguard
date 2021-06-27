@@ -9,7 +9,7 @@
 
     <item
         android:id="@+id/plannerFragment"
-        android:icon="@drawable/ic_road"
+        android:icon="@drawable/ic_book"
         android:title="Planner" />
 
     <item

@@ -51,8 +51,7 @@ public class MyLandmarksFragment extends Fragment {
 
     final ArrayList<PlaceDetails> tempPlaces = new ArrayList<PlaceDetails>();
 
-    public MyLandmarksFragment() {
-        // Required empty public constructor
+    public MyLandmarksFragment() {// Required empty public constructor
     }
 
     @Override

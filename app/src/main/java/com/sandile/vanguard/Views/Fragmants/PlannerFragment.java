@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import android.text.InputType;
@@ -77,7 +78,7 @@ public class PlannerFragment extends Fragment {
         lv_plans.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                new SnackTwo().redSnack(getActivity(), "Allow me to view, then edit");
+                showDetailsDetailsDialog(tempPlans.get(i));
             }
         });
 
@@ -215,8 +216,16 @@ public class PlannerFragment extends Fragment {
         }
     }
 
-    private void getPlanDetails(){
+    private void showDetailsDetailsDialog(Plan inPlanDetails){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setCancelable(true);
+        builder.setTitle(inPlanDetails.getPlanName()+" details");
+        builder.setMessage("Date: " + inPlanDetails.getPlanDate()+
+                "\n\nDetails: " + inPlanDetails.getPlanDetails());
+        builder.setNegativeButton("Ok", (dialog, which) -> dialog.cancel());
 
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
 

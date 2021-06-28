@@ -57,6 +57,7 @@ import com.google.maps.model.PlaceDetails;
 import com.google.maps.model.PlaceType;
 import com.google.maps.model.PlacesSearchResult;
 import com.google.maps.model.Unit;
+import com.sandile.vanguard.CustomPlace;
 import com.sandile.vanguard.MapHelper;
 import com.sandile.vanguard.R;
 import com.sandile.vanguard.SnackTwo;
@@ -87,20 +88,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private Marker currentUserMarker;
     private static int AUTOCOMPLETE_REQUEST_CODE = 1;
     private static int currentMapLayer = GoogleMap.MAP_TYPE_NORMAL;
-
     private Marker tempMarker = null;
-
     private Boolean isNavMode = false;//This is changed in enterNavigationMode()
-
     private Polyline mMapPolyline = null;
+
+    private static PlacesSearchResult[] tempNearbyPlaces;
+
     //User
     public static LatLng currentUserLocation = null, destinationLatLng = null;
-
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setMapType(currentMapLayer);
+        mMap.getUiSettings().setZoomControlsEnabled(true);
 
         //Setting up the button!
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -192,6 +193,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     .zoom(15)                   // Sets the zoom
                     .build();                   // Creates a CameraPosition from the builder
             mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        }
+
+        if(tempNearbyPlaces != null){
+            nearbyPlacesSetup(tempNearbyPlaces);
         }
     }
 
@@ -347,14 +352,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         fab_nearby.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new SnackTwo().greenSnack(getActivity(),"Showing nearby places...");
-
-                UserDetail tempUserDetail =  new UserDetail().getUserSessionDetails();
+                new SnackTwo().greenSnack(getActivity(),"Showing nearby "+ UserDetail.userSessionDetails.getPreferredLandmarkType() +"...");
 
                 try {
-                    PlaceType tempPlaceType = PlaceType.valueOf(tempUserDetail.getPreferredLandmarkType().toUpperCase());
+                    String tempUserDetailPlaceType =  new UserDetail().getUserSessionDetails().getPreferredLandmarkType().toUpperCase();
+                    PlaceType tempPlaceType = PlaceType.valueOf(tempUserDetailPlaceType);
 
-                    viewNearbyPlaces(tempPlaceType);
+                    viewNearbyPlaces(tempPlaceType, new com.google.maps.model.LatLng(currentUserLocation.latitude, currentUserLocation.longitude) );
+
                 } catch (InterruptedException e) {
                     new SnackTwo().redSnack(getActivity(),e.getMessage());
 //                    e.printStackTrace();
@@ -393,7 +398,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         fab_share.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sharePlaceDetails("Share this place details");
+
+                //todo: pass in the details of the clicked place here
+                //you can use try{} to prevent errors
+//                sharePlaceDetails();
             }
         });
 
@@ -412,72 +420,82 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     }
 
-    private void sharePlaceDetails(String placeDetails){
-        new SnackTwo().redSnack(getActivity(), placeDetails);
+    private void sharePlaceDetails(CustomPlace inPlaceDetails){
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        String content = "Details for: " + inPlaceDetails.getName()
+                +"\n Address: " + inPlaceDetails.getAddress()
+                +"\n Lat/lng: " + inPlaceDetails.getLatitude() + ", " + inPlaceDetails.getLongitude();
+
+        String sub = UserDetail.userSessionDetails.getEmail();
+
+        intent.putExtra(Intent.EXTRA_TEXT, content);
+        intent.putExtra(Intent.EXTRA_TEXT, sub);
+        startActivity(Intent.createChooser(intent, "Share place details"));
+
     }
 
     //TODO: pass in current user location, PLACE_TYPE
-    private void viewNearbyPlaces(PlaceType userPlaceType) throws InterruptedException, ApiException, IOException {
-        PlacesSearchResult[] placesSearchResults = new MapHelper().nearbyPlaces(geoApiContext, new com.google.maps.model.LatLng(currentUserLocation.latitude, currentUserLocation.longitude), userPlaceType).results;
+    private void viewNearbyPlaces(PlaceType userPlaceType, com.google.maps.model.LatLng userLocation) throws InterruptedException, ApiException, IOException {
+        PlacesSearchResult[] placesSearchResults = new MapHelper().nearbyPlaces(geoApiContext, userLocation, userPlaceType).results;
 
         if(placesSearchResults != null){
-            Log.e("response1Tag", placesSearchResults[0].toString());
-            Log.e("response2Tag", placesSearchResults[1].toString());
 
-            double lat1 = placesSearchResults[0].geometry.location.lat;
-            double lng1 = placesSearchResults[0].geometry.location.lng;
-
-            double lat2 = placesSearchResults[1].geometry.location.lat;
-            double lng2 = placesSearchResults[1].geometry.location.lng;
-
-            double lat3 = placesSearchResults[3].geometry.location.lat;
-            double lng3 = placesSearchResults[3].geometry.location.lng;
-
-            double lat4 = placesSearchResults[4].geometry.location.lat;
-            double lng4 = placesSearchResults[4].geometry.location.lng;
-
-            //TODO: PUT THIS IN A METHOD, GETTING DETAILS OF A PLACE
-
-            PlaceDetails details = PlacesApi.placeDetails(geoApiContext, placesSearchResults[0].placeId).await();
-
-            String name = details.name;
-            String address = details.formattedAddress;
-            URL icon = details.icon;
-            double lat = details.geometry.location.lat;
-            double lng = details.geometry.location.lng;
-            String vicinity = details.vicinity;
-            String placeId = details.placeId;
-            String phoneNum = details.internationalPhoneNumber;
-            String[] openHours = details.openingHours!=null ? details.openingHours.weekdayText : new String[0];
-            String hoursText = "";
-            for(String sv : openHours) {
-                hoursText += sv + "\n";
+            if(tempNearbyPlaces != null){
+                tempNearbyPlaces = null;
             }
-            float rating = details.rating;
 
-            String content = address + "\n" +
-                    "Place ID: " + placeId + "\n" +
-                    "Rating: " + rating + "\n" +
-                    "Phone: " + phoneNum + "\n" +
-                    "Open Hours: \n" + hoursText;
+            tempNearbyPlaces = placesSearchResults;
 
-            mMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(lat1, lng1))
-                    .snippet(content)
-                    .title(name));
-
-            //TODO: PUT THIS IN A METHOD, GETTING DETAILS OF A PLACE
-
-//            mMap.addMarker(new MarkerOptions().position(new LatLng(lat1, lng1))).setTitle("marker 1");
-            mMap.addMarker(new MarkerOptions().position(new LatLng(lat2, lng2))).setTitle("marker 2");
-            mMap.addMarker(new MarkerOptions().position(new LatLng(lat3, lng3))).setTitle("marker 3");
-            mMap.addMarker(new MarkerOptions().position(new LatLng(lat4, lng4))).setTitle("marker 4");
-
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lat1, lng1)));
+            nearbyPlacesSetup(tempNearbyPlaces);
         }
         else{
-            new SnackTwo().redSnack(getActivity(),"No nearby places of type" + new UserDetail().getUserSessionDetails().getPreferredLandmarkType());
+            new SnackTwo().redSnack(getActivity(),"No nearby places of type" + userPlaceType);
         }
+    }
+
+    //This should take PlacesSearchResult[] list and put pins(with name and address) on map
+    public void nearbyPlacesSetup(PlacesSearchResult[] placesSearchResults){
+        if(placesSearchResults != null){
+
+            //Move camera to the first result and zoom
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(new LatLng(placesSearchResults[0].geometry.location.lat, placesSearchResults[0].geometry.location.lng))
+                    .zoom(15)                   // Sets the zoom
+                    .build();                   // Creates a CameraPosition from the builder
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+            for(PlacesSearchResult onePlacesResult : placesSearchResults){
+                String tempName = "No name";
+                String tempAddress = "Lat/lng: " + onePlacesResult.geometry.location.toString();
+
+                if(onePlacesResult.name != null){
+                    tempName = onePlacesResult.name;
+                }
+                else if(onePlacesResult.formattedAddress != null){
+                    tempAddress = onePlacesResult.formattedAddress;
+                }
+
+                mMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(onePlacesResult.geometry.location.lat, onePlacesResult.geometry.location.lng))
+                        .snippet(tempAddress)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))
+                        .title(tempName));
+
+            }
+        }else{
+            new SnackTwo().orangeSnack(getActivity(), "There are no nearby places for " + UserDetail.userSessionDetails.getPreferredLandmarkType());
+        }
+    }
+
+    public PlaceDetails getPlaceDetails(GeoApiContext inGeoApiContext, String inPlaceId) throws InterruptedException, ApiException, IOException {
+        PlaceDetails details = PlacesApi.placeDetails(inGeoApiContext, inPlaceId).await();
+
+        if(details != null){
+            return details;
+        }
+
+        return null;
     }
 
     //This is used for google search, then placing pin on map
@@ -493,7 +511,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         .position(latLngTemp)
                         .title(place.getName())
                         .snippet(place.getAddress())
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLngTemp, 15));
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
                 Status status = Autocomplete.getStatusFromIntent(data);

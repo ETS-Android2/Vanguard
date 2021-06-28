@@ -28,7 +28,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.sandile.vanguard.PlaceDetails;
+import com.sandile.vanguard.CustomPlace;
 import com.sandile.vanguard.R;
 import com.sandile.vanguard.SnackTwo;
 import com.sandile.vanguard.UserDetail;
@@ -49,7 +49,7 @@ public class MyLandmarksFragment extends Fragment {
     private ListView lv_landmarks;
     private LinearProgressIndicator pb_loadingLandmarks;
 
-    final ArrayList<PlaceDetails> tempPlaces = new ArrayList<PlaceDetails>();
+    final ArrayList<CustomPlace> tempPlaces = new ArrayList<CustomPlace>();
 
     public MyLandmarksFragment() {// Required empty public constructor
     }
@@ -98,7 +98,7 @@ public class MyLandmarksFragment extends Fragment {
         if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 Place place = Autocomplete.getPlaceFromIntent(data);
-                saveLocation(new PlaceDetails(place.getAddress(), place.getId(), place.getName(), place.getLatLng().latitude, place.getLatLng().longitude));
+                saveLocation(new CustomPlace(place.getAddress(), place.getId(), place.getName(), place.getLatLng().latitude, place.getLatLng().longitude));
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
                 Status status = Autocomplete.getStatusFromIntent(data);
                 new SnackTwo().redSnack(getActivity(), status.getStatusMessage());
@@ -109,7 +109,7 @@ public class MyLandmarksFragment extends Fragment {
         }
     }
 
-    private void saveLocation(PlaceDetails inPlace){
+    private void saveLocation(CustomPlace inPlace){
         FirebaseDatabase.getInstance().getReference("users")
                 .child(UserDetail.currentUserId).child("locations").child(inPlace.getId())
                 .setValue(inPlace).addOnCompleteListener(task -> {
@@ -138,7 +138,7 @@ public class MyLandmarksFragment extends Fragment {
 
                     tempPlaces.clear();
                     for(DataSnapshot child: snapshotPlaces){
-                        tempPlaces.add(child.getValue(PlaceDetails.class));
+                        tempPlaces.add(child.getValue(CustomPlace.class));
                     }
 
                     landmarksListSetup(tempPlaces);
@@ -156,7 +156,7 @@ public class MyLandmarksFragment extends Fragment {
         });
     }
 
-    private void landmarksListSetup(ArrayList<PlaceDetails> inPlaceList){
+    private void landmarksListSetup(ArrayList<CustomPlace> inPlaceList){
         ArrayList<String> tempPlaces = new ArrayList<>();
 
         for(int i = 0; i < inPlaceList.size(); i++){
@@ -178,14 +178,14 @@ public class MyLandmarksFragment extends Fragment {
         }
     }
 
-    private void showLandmarkDetailsDialog(PlaceDetails inPlaceDetails){
+    private void showLandmarkDetailsDialog(CustomPlace inCustomPlace){
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setCancelable(true);
-        builder.setTitle(inPlaceDetails.getName()+" details");
-        builder.setMessage("Address: " + inPlaceDetails.getAddress()+
-                "\n\nId: " + inPlaceDetails.getId()+
-                "\n\nLatitude: " + inPlaceDetails.getLatitude()+
-                "\n\nLongitude: "+inPlaceDetails.getLongitude());
+        builder.setTitle(inCustomPlace.getName()+" details");
+        builder.setMessage("Address: " + inCustomPlace.getAddress()+
+                "\n\nId: " + inCustomPlace.getId()+
+                "\n\nLatitude: " + inCustomPlace.getLatitude()+
+                "\n\nLongitude: "+ inCustomPlace.getLongitude());
         builder.setNegativeButton("Ok", (dialog, which) -> dialog.cancel());
 
         AlertDialog dialog = builder.create();

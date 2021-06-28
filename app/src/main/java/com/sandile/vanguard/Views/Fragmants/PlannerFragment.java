@@ -25,7 +25,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.sandile.vanguard.PlaceDetails;
 import com.sandile.vanguard.Plan;
 import com.sandile.vanguard.R;
 import com.sandile.vanguard.SnackTwo;

@@ -195,9 +195,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
         }
 
-        if(tempNearbyPlaces != null){
-            nearbyPlacesSetup(tempNearbyPlaces);
-        }
     }
 
     @Nullable
@@ -398,7 +395,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         fab_share.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                new SnackTwo().redSnack(getActivity(), "FAB not setup, method is here");
                 //todo: pass in the details of the clicked place here
                 //you can use try{} to prevent errors
 //                sharePlaceDetails();
@@ -461,7 +458,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             //Move camera to the first result and zoom
             CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(new LatLng(placesSearchResults[0].geometry.location.lat, placesSearchResults[0].geometry.location.lng))
-                    .zoom(15)                   // Sets the zoom
+                    .zoom(13)                   // Sets the zoom
                     .build();                   // Creates a CameraPosition from the builder
             mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 

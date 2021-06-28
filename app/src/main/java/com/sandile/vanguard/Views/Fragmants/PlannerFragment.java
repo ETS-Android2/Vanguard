@@ -99,7 +99,12 @@ public class PlannerFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                String tempPlanName = input.getText().toString();
+                String tempPlanName = input.getText().toString().trim();
+
+                if(tempPlanName.equals(null)){
+                    new SnackTwo().redSnack(getActivity(), "You didn't enter plan name!");
+                    return;
+                }
 
                 MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
                 builder.setTitle("Enter plan details");
@@ -107,7 +112,10 @@ public class PlannerFragment extends Fragment {
                 // Set up the input
                 final EditText input = new EditText(getContext());
                 // Specify the type of input expected
-                input.setInputType(InputType.TYPE_CLASS_TEXT);
+//                input.setInputType(InputType.TYPE_CLASS_TEXT);
+                input.setHorizontalScrollBarEnabled(false);
+                input.setLines(4);
+                input.setSingleLine(false);
                 builder.setView(input);
 
                 // Set up the buttons
@@ -116,6 +124,11 @@ public class PlannerFragment extends Fragment {
                     public void onClick(DialogInterface dialog, int which) {
                         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss");
                         LocalDateTime now = LocalDateTime.now();
+
+                        if(input.getText().toString().trim().equals(null)){
+                            new SnackTwo().redSnack(getActivity(), "You didn't enter plan details.");
+                            return;
+                        }
 
                         Plan tempPlan = new Plan(tempPlanName, input.getText().toString(), dtf.format(now));
 

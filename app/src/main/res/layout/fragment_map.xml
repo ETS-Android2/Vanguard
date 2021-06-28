@@ -18,14 +18,26 @@
         tools:layout_editor_absoluteX="0dp" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/map_fab_mapLayer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        app:backgroundTint="@color/white"
+        app:fabCustomSize="40dp"
+        app:layout_constraintBottom_toTopOf="@+id/maps_fab_nearby"
+        app:layout_constraintEnd_toEndOf="@+id/maps_fab_nearby"
+        app:layout_constraintStart_toStartOf="@+id/maps_fab_nearby"
+        app:srcCompat="@drawable/ic_layers" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/maps_fab_search"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:fabCustomSize="50dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="8dp"
         android:clickable="true"
         android:src="@drawable/ic_search"
         app:backgroundTint="@color/white"
+        app:fabCustomSize="50dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
@@ -36,11 +48,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        app:fabCustomSize="50dp"
+        android:layout_marginBottom="10dp"
         android:clickable="true"
         android:src="@drawable/ic_direction"
         android:visibility="invisible"
         app:backgroundTint="#4CAF50"
+        app:fabCustomSize="50dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -132,26 +145,28 @@
         android:id="@+id/maps_fab_nearby"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:fabCustomSize="50dp"
         android:layout_marginStart="8dp"
         android:layout_marginBottom="33dp"
         android:clickable="true"
         app:backgroundTint="@color/white"
+        app:fabCustomSize="50dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/ic_nearby" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/map_fab_mapLayer"
+        android:id="@+id/map_fab_share"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:fabCustomSize="40dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
         android:clickable="true"
+        android:visibility="invisible"
         app:backgroundTint="@color/white"
-        app:layout_constraintBottom_toTopOf="@+id/maps_fab_nearby"
-        app:layout_constraintEnd_toEndOf="@+id/maps_fab_nearby"
-        app:layout_constraintStart_toStartOf="@+id/maps_fab_nearby"
-        app:srcCompat="@drawable/ic_layers" />
+        app:fabCustomSize="40dp"
+        app:layout_constraintBottom_toTopOf="@+id/maps_fab_direction"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/ic_share" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

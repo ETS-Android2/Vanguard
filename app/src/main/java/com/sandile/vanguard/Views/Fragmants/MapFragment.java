@@ -75,14 +75,14 @@ import static android.app.Activity.RESULT_OK;
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     //Pallets
-    private FloatingActionButton fab_search, fab_direction, fab_nearby, fab_mapLayer;
+    private FloatingActionButton fab_search, fab_direction, fab_nearby, fab_mapLayer, fab_share;
     private AppBarLayout tb_toolbar;
     private TextView tv_time, tv_distance;
     private ImageView iv_stopNav;
 
     //Map
     private GeoApiContext geoApiContext = null;
-    private GoogleMap mMap;
+    private static GoogleMap mMap;
     private static FusedLocationProviderClient fusedLocationClient;
     private Marker currentUserMarker;
     private static int AUTOCOMPLETE_REQUEST_CODE = 1;
@@ -101,7 +101,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setMapType(currentMapLayer);
-        mMap.getUiSettings().setZoomControlsEnabled(true);
 
         //Setting up the button!
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -126,6 +125,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
                 if(!isNavMode){
                     fab_direction.setVisibility(View.INVISIBLE);
+                    fab_share.setVisibility(View.INVISIBLE);
 
                     if (tempMarker != null) {
                         tempMarker.remove();
@@ -147,6 +147,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             public boolean onMarkerClick(@NonNull @NotNull Marker marker) {
                 destinationLatLng = marker.getPosition();
                 fab_direction.setVisibility(View.VISIBLE);
+                fab_share.setVisibility(View.VISIBLE);
 
                 return false;
             }
@@ -388,6 +389,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
         });
 
+        fab_share = view.findViewById(R.id.map_fab_share);
+        fab_share.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sharePlaceDetails("Share this place details");
+            }
+        });
+
         iv_stopNav = view.findViewById(R.id.maps_iv_stopNav);
         iv_stopNav.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -397,11 +406,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
         });
 
-
         tb_toolbar = view.findViewById(R.id.appBarLayout);
         tv_time = view.findViewById(R.id.maps_tv_toolbar_time);
         tv_distance = view.findViewById(R.id.maps_tv_toolbar_distance);
 
+    }
+
+    private void sharePlaceDetails(String placeDetails){
+        new SnackTwo().redSnack(getActivity(), placeDetails);
     }
 
     //TODO: pass in current user location, PLACE_TYPE

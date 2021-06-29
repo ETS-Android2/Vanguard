@@ -51,6 +51,7 @@ import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.maps.DirectionsApiRequest;
 import com.google.maps.GeoApiContext;
 import com.google.maps.GeocodingApi;
@@ -178,22 +179,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
                     PlaceDetails details = PlacesApi.placeDetails(geoApiContext, placeIdApi[0].placeId).await();
 
-                    String address = details.formattedAddress;
-                    String phoneNum = details.internationalPhoneNumber;
-                    String[] openHours = details.openingHours!=null ? details.openingHours.weekdayText : new String[0];
-                    String hoursText = "";
-                    for(String sv : openHours) {
-                        hoursText += sv + "\n";
-                    }
-                    float rating = details.rating;
-
-                    String content = address + "\n\n" +
-                            "Rating: " + rating + "\n" +
-                            "Phone: " + phoneNum + "\n\n" +
-                            "Open Hours: \n" + hoursText;
-
-
-                    showPlaceDetailsDialog(content, details.name);
+                    showPlaceDetailsDialog(details);
 
                 } catch (ApiException e) {
                     new SnackTwo().redSnack(getActivity(), e.getMessage());
@@ -226,13 +212,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
         }
 
-        if (tempNearbyPlaces != null) {
-            try {
-                nearbyPlacesSetup(tempNearbyPlaces);
-            } catch (IOException e) {
-                new SnackTwo().redSnack(getActivity(), e.getMessage());
-            }
-        }
+//        if (tempNearbyPlaces != null) {
+//            try {
+//                nearbyPlacesSetup(tempNearbyPlaces);
+//            } catch (IOException e) {
+//                new SnackTwo().redSnack(getActivity(), e.getMessage());
+//            }
+//        }
     }
 
     @Nullable
@@ -265,32 +251,55 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     }
 
-    private void showPlaceDetailsDialog(String content, String placeName) {
+    private void showPlaceDetailsDialog(PlaceDetails details) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setCancelable(true);
 
-        builder.setTitle(placeName);
-        builder.setMessage(content);
+        builder.setTitle(details.name);
+
+        builder.setMessage(new CustomPlace().FormatPlaceDetails(details));
 
         builder.setPositiveButton("Add to fav",
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        new SnackTwo().orangeSnack(getActivity(), "Feature coming soon");
+                        try{
+                            saveLocation(new CustomPlace(details.formattedAddress, details.placeId, details.name, details.geometry.location.lat, details.geometry.location.lng));
+                            new SnackTwo().greenSnack(getActivity(), "Place added!");
+
+                        }catch (Exception e){
+                            new SnackTwo().redSnack(getActivity(), e.toString());
+                        }
 
                     }
                 });
-        builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton("Share", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
+
+                sharePlaceDetails(new CustomPlace().FormatPlaceDetails(details));
             }
         });
 
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    private void saveLocation(CustomPlace customPlace) {
+        FirebaseDatabase.getInstance().getReference("users")
+                .child(UserDetail.currentUserId).child("locations").child(customPlace.getId())
+                .setValue(customPlace).addOnCompleteListener(task -> {
+            if(task.isSuccessful()){
+                new SnackTwo().greenSnack(getActivity(), "Location has been added to your list!");
+            }
+            else{
+                new SnackTwo().redSnack(getActivity(), "Something went wrong\nCould not save ");
+            }
+        }).addOnFailureListener(e -> {
+            new SnackTwo().redSnack(getActivity(), e.getMessage());
+        });
     }
 
     private void enterNavigationMode(boolean isEnter) {
@@ -434,22 +443,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     }
 
-    private void sharePlaceDetails(CustomPlace inPlaceDetails) {
+    private void sharePlaceDetails(String content) {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
-        String content = "Details for: " + inPlaceDetails.getName()
-                + "\n Address: " + inPlaceDetails.getAddress()
-                + "\n Lat/lng: " + inPlaceDetails.getLatitude() + ", " + inPlaceDetails.getLongitude();
-
-        String sub = UserDetail.userSessionDetails.getEmail();
 
         intent.putExtra(Intent.EXTRA_TEXT, content);
-        intent.putExtra(Intent.EXTRA_TEXT, sub);
         startActivity(Intent.createChooser(intent, "Share place details"));
-
     }
 
-    //TODO: pass in current user location, PLACE_TYPE
     private void viewNearbyPlaces(PlaceType userPlaceType, com.google.maps.model.LatLng userLocation) throws InterruptedException, ApiException, IOException {
         PlacesSearchResult[] placesSearchResults = new MapHelper().nearbyPlaces(geoApiContext, userLocation, userPlaceType).results;
 
@@ -498,16 +499,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         } else {
             new SnackTwo().orangeSnack(getActivity(), "There are no nearby places for " + UserDetail.userSessionDetails.getPreferredLandmarkType());
         }
-    }
-
-    public PlaceDetails getPlaceDetails(GeoApiContext inGeoApiContext, String inPlaceId) throws InterruptedException, ApiException, IOException {
-        PlaceDetails details = PlacesApi.placeDetails(inGeoApiContext, inPlaceId).await();
-
-        if (details != null) {
-            return details;
-        }
-
-        return null;
     }
 
     //This is used for google search, then placing pin on map

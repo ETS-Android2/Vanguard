@@ -113,7 +113,7 @@ public class MyLandmarksFragment extends Fragment {
         FirebaseDatabase.getInstance().getReference("users")
                 .child(UserDetail.currentUserId).child("locations").child(inPlace.getId())
                 .setValue(inPlace).addOnCompleteListener(task -> {
-            pb_loadingLandmarks.hide();
+                    pb_loadingLandmarks.hide();
                     if(task.isSuccessful()){
                         new SnackTwo().greenSnack(getActivity(), "Location has been added to your list!");
                     }

@@ -11,6 +11,9 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Icon;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -29,6 +32,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -40,6 +44,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.FetchPlaceRequest;
+import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
@@ -47,12 +53,14 @@ import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.maps.DirectionsApiRequest;
 import com.google.maps.GeoApiContext;
+import com.google.maps.GeocodingApi;
 import com.google.maps.PendingResult;
 import com.google.maps.PlacesApi;
 import com.google.maps.errors.ApiException;
 import com.google.maps.internal.PolylineEncoding;
 import com.google.maps.model.DirectionsResult;
 import com.google.maps.model.DirectionsRoute;
+import com.google.maps.model.GeocodingResult;
 import com.google.maps.model.PlaceDetails;
 import com.google.maps.model.PlaceType;
 import com.google.maps.model.PlacesSearchResult;
@@ -66,10 +74,13 @@ import com.sandile.vanguard.UserDetail;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -124,7 +135,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onMapClick(@NonNull @NotNull LatLng latLng) {
 
-                if(!isNavMode){
+                if (!isNavMode) {
                     fab_direction.setVisibility(View.INVISIBLE);
                     fab_share.setVisibility(View.INVISIBLE);
 
@@ -158,26 +169,46 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onInfoWindowClick(@NonNull @NotNull Marker marker) {
 
-                PlaceDetails placeDetails = null;
+                new SnackTwo().greenSnack(getActivity(), "Getting details");
+
                 try {
-                    placeDetails = PlacesApi.placeDetails(geoApiContext, marker.getId()).await();
+                    GeocodingResult[] placeIdApi = GeocodingApi.newRequest(geoApiContext)
+                            .latlng(new com.google.maps.model.LatLng(marker.getPosition().latitude, marker.getPosition().longitude))
+                            .await();
+
+                    PlaceDetails details = PlacesApi.placeDetails(geoApiContext, placeIdApi[0].placeId).await();
+
+                    String address = details.formattedAddress;
+                    String phoneNum = details.internationalPhoneNumber;
+                    String[] openHours = details.openingHours!=null ? details.openingHours.weekdayText : new String[0];
+                    String hoursText = "";
+                    for(String sv : openHours) {
+                        hoursText += sv + "\n";
+                    }
+                    float rating = details.rating;
+
+                    String content = address + "\n\n" +
+                            "Rating: " + rating + "\n" +
+                            "Phone: " + phoneNum + "\n\n" +
+                            "Open Hours: \n" + hoursText;
+
+
+                    showPlaceDetailsDialog(content, details.name);
+
                 } catch (ApiException e) {
+                    new SnackTwo().redSnack(getActivity(), e.getMessage());
                     e.printStackTrace();
                 } catch (InterruptedException e) {
+                    new SnackTwo().redSnack(getActivity(), e.getMessage());
                     e.printStackTrace();
                 } catch (IOException e) {
+                    new SnackTwo().redSnack(getActivity(), e.getMessage());
                     e.printStackTrace();
                 }
-
-                if(placeDetails != null){
-                    showPlaceDetailsDialog(placeDetails);
-                }else{
-                    new SnackTwo().redSnack(getActivity(),"YOU ARE PASSING THE WRONG ID!");
-                }
-
 
             }
         });
+
 
         if (currentUserLocation == null) {
             setUserCurrentLocation();
@@ -195,6 +226,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
         }
 
+        if (tempNearbyPlaces != null) {
+            try {
+                nearbyPlacesSetup(tempNearbyPlaces);
+            } catch (IOException e) {
+                new SnackTwo().redSnack(getActivity(), e.getMessage());
+            }
+        }
     }
 
     @Nullable
@@ -216,7 +254,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         if (geoApiContext == null) {//context setup
             geoApiContext = new GeoApiContext.Builder()
-                    .apiKey(getString(R.string.google_api_key))
+//                    .apiKey(getString(R.string.google_api_key))
+                    .apiKey("AIzaSyANaY7LDVroXKDyKlUKiIIg6oAUeIOCDbw")
                     .build();
         }
 
@@ -226,32 +265,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     }
 
-    private void showPlaceDetailsDialog(PlaceDetails placeDetails){
+    private void showPlaceDetailsDialog(String content, String placeName) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setCancelable(true);
 
-        builder.setTitle(placeDetails.name);
-
-        String address = placeDetails.formattedAddress;
-//      String vicinity = placeDetails.vicinity;
-        String placeId = placeDetails.placeId;
-        String phoneNum = placeDetails.internationalPhoneNumber;
-        String[] openHours = placeDetails.openingHours!=null ? placeDetails.openingHours.weekdayText : new String[0];
-        String hoursText = "";
-        for(String sv : openHours) {
-            hoursText += sv + "\n";
-        }
-        float rating = placeDetails.rating;
-
-        String content = address + "\n" +
-                "Place ID: " + placeId + "\n" +
-                "Rating: " + rating + "\n" +
-                "Phone: " + phoneNum + "\n" +
-                "Open Hours: \n" + hoursText;
-
+        builder.setTitle(placeName);
         builder.setMessage(content);
-
 
         builder.setPositiveButton("Add to fav",
                 new DialogInterface.OnClickListener() {
@@ -279,7 +299,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             //App bar
             tb_toolbar.setVisibility(View.VISIBLE);
 
-            if(mMapPolyline != null){
+            if (mMapPolyline != null) {
                 mMapPolyline.remove();
             }
 
@@ -294,8 +314,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             fab_mapLayer.setVisibility(View.INVISIBLE);
             fab_search.setVisibility(View.INVISIBLE);
             fab_nearby.setVisibility(View.INVISIBLE);
-        }
-        else{
+        } else {
             isNavMode = false;
 
             //App bar
@@ -332,14 +351,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             public void onClick(View v) {
                 LatLng tempDestination = destinationLatLng;
 
-                if(tempDestination != null){
+                if (tempDestination != null) {
                     fab_direction.setVisibility(View.INVISIBLE);
-                    new SnackTwo().greenSnack(getActivity(),"Getting direction...");
+                    new SnackTwo().greenSnack(getActivity(), "Getting direction...");
                     calculateDirections(tempDestination);
                     tb_toolbar.setVisibility(View.VISIBLE);
-                }
-                else{
-                    new SnackTwo().redSnack(getActivity(),"Click on map to choose destination");
+                } else {
+                    new SnackTwo().redSnack(getActivity(), "Click on map to choose destination");
                     fab_direction.setVisibility(View.INVISIBLE);
                 }
             }
@@ -349,22 +367,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         fab_nearby.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new SnackTwo().greenSnack(getActivity(),"Showing nearby "+ UserDetail.userSessionDetails.getPreferredLandmarkType() +"...");
+                new SnackTwo().greenSnack(getActivity(), "Showing nearby " + UserDetail.userSessionDetails.getPreferredLandmarkType() + "...");
 
                 try {
-                    String tempUserDetailPlaceType =  new UserDetail().getUserSessionDetails().getPreferredLandmarkType().toUpperCase();
+                    String tempUserDetailPlaceType = new UserDetail().getUserSessionDetails().getPreferredLandmarkType().toUpperCase();
                     PlaceType tempPlaceType = PlaceType.valueOf(tempUserDetailPlaceType);
 
-                    viewNearbyPlaces(tempPlaceType, new com.google.maps.model.LatLng(currentUserLocation.latitude, currentUserLocation.longitude) );
+                    viewNearbyPlaces(tempPlaceType, new com.google.maps.model.LatLng(currentUserLocation.latitude, currentUserLocation.longitude));
 
                 } catch (InterruptedException e) {
-                    new SnackTwo().redSnack(getActivity(),e.getMessage());
+                    new SnackTwo().redSnack(getActivity(), e.getMessage());
 //                    e.printStackTrace();
                 } catch (ApiException e) {
-                    new SnackTwo().redSnack(getActivity(),e.getMessage());
+                    new SnackTwo().redSnack(getActivity(), e.getMessage());
 //                    e.printStackTrace();
                 } catch (IOException e) {
-                    new SnackTwo().redSnack(getActivity(),e.getMessage());
+                    new SnackTwo().redSnack(getActivity(), e.getMessage());
 //                    e.printStackTrace();
                 }
             }
@@ -375,13 +393,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onClick(View v) {
 
-                for(int i = 0; i <= 4; i++){
-                    if(currentMapLayer == i){
-                        currentMapLayer = i+1;
+                for (int i = 0; i <= 4; i++) {
+                    if (currentMapLayer == i) {
+                        currentMapLayer = i + 1;
                         mMap.setMapType(currentMapLayer);
                         break;
-                    }
-                    else if(currentMapLayer == 4){
+                    } else if (currentMapLayer == 4) {
                         currentMapLayer = 0;
                         mMap.setMapType(currentMapLayer);
                         break;
@@ -417,12 +434,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     }
 
-    private void sharePlaceDetails(CustomPlace inPlaceDetails){
+    private void sharePlaceDetails(CustomPlace inPlaceDetails) {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
         String content = "Details for: " + inPlaceDetails.getName()
-                +"\n Address: " + inPlaceDetails.getAddress()
-                +"\n Lat/lng: " + inPlaceDetails.getLatitude() + ", " + inPlaceDetails.getLongitude();
+                + "\n Address: " + inPlaceDetails.getAddress()
+                + "\n Lat/lng: " + inPlaceDetails.getLatitude() + ", " + inPlaceDetails.getLongitude();
 
         String sub = UserDetail.userSessionDetails.getEmail();
 
@@ -436,24 +453,23 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private void viewNearbyPlaces(PlaceType userPlaceType, com.google.maps.model.LatLng userLocation) throws InterruptedException, ApiException, IOException {
         PlacesSearchResult[] placesSearchResults = new MapHelper().nearbyPlaces(geoApiContext, userLocation, userPlaceType).results;
 
-        if(placesSearchResults != null){
+        if (placesSearchResults != null) {
 
-            if(tempNearbyPlaces != null){
+            if (tempNearbyPlaces != null) {
                 tempNearbyPlaces = null;
             }
 
             tempNearbyPlaces = placesSearchResults;
 
             nearbyPlacesSetup(tempNearbyPlaces);
-        }
-        else{
-            new SnackTwo().redSnack(getActivity(),"No nearby places of type" + userPlaceType);
+        } else {
+            new SnackTwo().redSnack(getActivity(), "No nearby places of type" + userPlaceType);
         }
     }
 
     //This should take PlacesSearchResult[] list and put pins(with name and address) on map
-    public void nearbyPlacesSetup(PlacesSearchResult[] placesSearchResults){
-        if(placesSearchResults != null){
+    public void nearbyPlacesSetup(PlacesSearchResult[] placesSearchResults) throws IOException {
+        if (placesSearchResults != null) {
 
             //Move camera to the first result and zoom
             CameraPosition cameraPosition = new CameraPosition.Builder()
@@ -462,14 +478,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     .build();                   // Creates a CameraPosition from the builder
             mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
-            for(PlacesSearchResult onePlacesResult : placesSearchResults){
+            for (PlacesSearchResult onePlacesResult : placesSearchResults) {
                 String tempName = "No name";
                 String tempAddress = "Lat/lng: " + onePlacesResult.geometry.location.toString();
 
-                if(onePlacesResult.name != null){
+                if (onePlacesResult.name != null) {
                     tempName = onePlacesResult.name;
-                }
-                else if(onePlacesResult.formattedAddress != null){
+                } else if (onePlacesResult.formattedAddress != null) {
                     tempAddress = onePlacesResult.formattedAddress;
                 }
 
@@ -480,7 +495,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         .title(tempName));
 
             }
-        }else{
+        } else {
             new SnackTwo().orangeSnack(getActivity(), "There are no nearby places for " + UserDetail.userSessionDetails.getPreferredLandmarkType());
         }
     }
@@ -488,7 +503,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public PlaceDetails getPlaceDetails(GeoApiContext inGeoApiContext, String inPlaceId) throws InterruptedException, ApiException, IOException {
         PlaceDetails details = PlacesApi.placeDetails(inGeoApiContext, inPlaceId).await();
 
-        if(details != null){
+        if (details != null) {
             return details;
         }
 
@@ -518,7 +533,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-    private void setUserCurrentLocation(){
+    private void setUserCurrentLocation() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             new SnackTwo().redSnack(getActivity(), "ask for permission!!!");
@@ -576,15 +591,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 )
         );
 
-        try{
+        try {
             Boolean tempIsMetric = new UserDetail().getUserSessionDetails().getIsMetric();
-            if(tempIsMetric){
+            if (tempIsMetric) {
                 directions.units(Unit.METRIC);
-            }
-            else{
+            } else {
                 directions.units(Unit.IMPERIAL);
             }
-        }catch (Exception e) {
+        } catch (Exception e) {
             new SnackTwo().redSnack(getActivity(), "You are not signed in!");
         }
 
@@ -609,7 +623,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     }
                 });
 
-                if(mMapPolyline != null){
+                if (mMapPolyline != null) {
                     mMapPolyline.remove();
                 }
 

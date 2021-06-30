@@ -162,9 +162,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
                     UserDetail userDetail = new UserDetail();
                     Log.e("Profile class", "onDataChange: "+snapshot.child("email").getValue().toString());
                     userDetail.setEmail(snapshot.child("email").getValue().toString());
-
                     userDetail.setFavouriteLandmark(snapshot.child("favouriteLandmark").getValue().toString());
-
                     userDetail.setPreferredLandmarkType(snapshot.child("preferredLandmarkType").getValue().toString());
                     userDetail.setIsMetric(Boolean.parseBoolean(snapshot.child("isMetric").getValue().toString()));
 

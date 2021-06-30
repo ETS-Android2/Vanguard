@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,6 +22,9 @@ import android.widget.Switch;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
@@ -37,6 +41,9 @@ import java.util.List;
 import io.opencensus.internal.StringUtils;
 
 public class RegisterActivity extends AppCompatActivity implements View.OnClickListener {
+
+    private static int AUTOCOMPLETE_REQUEST_CODE = 1;
+
     private Button btn_register;
     private Switch switch_measurementSystem;
     private EditText et_email, et_confirmPassword, et_password, et_favouriteLandmark, et_preferredLandmarkType;
@@ -180,10 +187,10 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         et_confirmPassword = findViewById(R.id.register_et_password2);
         et_password = findViewById(R.id.register_et_password);
         et_favouriteLandmark = findViewById(R.id.register_et_favouriteLandmark);
+
         et_preferredLandmarkType = findViewById(R.id.register_et_preferredLandmarkType);
         et_preferredLandmarkType.setFocusable(false);
         et_preferredLandmarkType.setCursorVisible(false);
-
         et_preferredLandmarkType.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

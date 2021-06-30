@@ -104,6 +104,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private Boolean isNavMode = false;//This is changed in enterNavigationMode()
     private Polyline mMapPolyline = null;
 
+    private Marker[] nearbyMarkers;
+
     private static PlacesSearchResult[] tempNearbyPlaces;
 
     //User
@@ -367,6 +369,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 LatLng tempDestination = destinationLatLng;
 
                 if (tempDestination != null) {
+
                     fab_direction.setVisibility(View.INVISIBLE);
                     new SnackTwo().greenSnack(getActivity(), "Getting direction...");
                     calculateDirections(tempDestination);

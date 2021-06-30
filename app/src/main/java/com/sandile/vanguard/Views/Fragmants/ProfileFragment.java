@@ -98,7 +98,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
     }
 
     private void googlePlaceSearch(){
-        List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS, Place.Field.LAT_LNG);
+        List<Place.Field> fields = Arrays.asList(Place.Field.NAME);
 
         Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields).build(getContext());
         startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
@@ -113,7 +113,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
             if (resultCode == RESULT_OK) {
                 Place place = Autocomplete.getPlaceFromIntent(data);
 
-                changeUserFavPLace("favouriteLandmark", new CustomPlace(place.getAddress(), place.getId(), place.getName(), place.getLatLng().latitude, place.getLatLng().longitude));
+                changeUserDetail("favouriteLandmark", place.getName());
 
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
                 Status status = Autocomplete.getStatusFromIntent(data);
@@ -162,7 +162,9 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
                     UserDetail userDetail = new UserDetail();
                     Log.e("Profile class", "onDataChange: "+snapshot.child("email").getValue().toString());
                     userDetail.setEmail(snapshot.child("email").getValue().toString());
+
                     userDetail.setFavouriteLandmark(snapshot.child("favouriteLandmark").getValue().toString());
+
                     userDetail.setPreferredLandmarkType(snapshot.child("preferredLandmarkType").getValue().toString());
                     userDetail.setIsMetric(Boolean.parseBoolean(snapshot.child("isMetric").getValue().toString()));
 
@@ -288,23 +290,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
     }
 
     private void changeUserDetail(String inToChange, String inNewValue){
-        FirebaseDatabase.getInstance().getReference("users")
-                .child(UserDetail.currentUserId).child(inToChange)
-                .setValue(inNewValue).addOnCompleteListener(task -> {
-            pb_loadingProfile.hide();
-            if(task.isSuccessful()){
-                new SnackTwo().greenSnack(getActivity(), inToChange+" has been changed!");
-            }
-            else{
-                new SnackTwo().redSnack(getActivity(), "Something went wrong :-(!");
-            }
-        }).addOnFailureListener(e -> {
-            pb_loadingProfile.hide();
-            new SnackTwo().redSnack(getActivity(), e.getMessage());
-        });
-    }
-
-    private void changeUserFavPLace(String inToChange, Object inNewValue){
         FirebaseDatabase.getInstance().getReference("users")
                 .child(UserDetail.currentUserId).child(inToChange)
                 .setValue(inNewValue).addOnCompleteListener(task -> {

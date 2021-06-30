@@ -1,6 +1,7 @@
 package com.sandile.vanguard.Views.Fragmants;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -18,6 +19,11 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import com.google.android.gms.common.api.Status;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -25,6 +31,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.maps.model.PlaceType;
+import com.sandile.vanguard.CustomPlace;
 import com.sandile.vanguard.R;
 import com.sandile.vanguard.SnackTwo;
 import com.sandile.vanguard.UserDetail;
@@ -32,6 +39,9 @@ import com.sandile.vanguard.UserDetail;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static android.app.Activity.RESULT_CANCELED;
+import static android.app.Activity.RESULT_OK;
 
 public class ProfileFragment extends Fragment implements View.OnClickListener{
 
@@ -51,6 +61,9 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
     //Objects
     public static UserDetail userDetailGlobal;
 
+    //Other
+    private static int AUTOCOMPLETE_REQUEST_CODE = 1;
+
     public ProfileFragment() {
         // Required empty public constructor
     }
@@ -69,7 +82,10 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
                 placeTypeListDialog();
             }
             if(i == 2){
-                changeUserDetailDialog("favouriteLandmark");
+                googlePlaceSearch();
+
+                //This brings up dialog to allow users to enter new place
+//                changeUserDetailDialog("favouriteLandmark");
             }
             if(i == 3){
                 changeIsMetricDialog();
@@ -81,13 +97,32 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
         return view;
     }
 
-    public static ProfileFragment newInstance(String param1, String param2) {
-        ProfileFragment fragment = new ProfileFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+    private void googlePlaceSearch(){
+        List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS, Place.Field.LAT_LNG);
+
+        Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields).build(getContext());
+        startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
+    }
+
+    //For now this gets information returned by google search
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Place place = Autocomplete.getPlaceFromIntent(data);
+
+                changeUserFavPLace("favouriteLandmark", new CustomPlace(place.getAddress(), place.getId(), place.getName(), place.getLatLng().latitude, place.getLatLng().longitude));
+
+            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+                Status status = Autocomplete.getStatusFromIntent(data);
+                new SnackTwo().redSnack(getActivity(), status.getStatusMessage());
+            } else if (resultCode == RESULT_CANCELED) {
+                new SnackTwo().orangeSnack(getActivity(), "Click on a place to add it!");
+            }
+            return;
+        }
     }
 
     @Override
@@ -154,8 +189,14 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
         ArrayList<String> userDetailsList = new ArrayList<>();
         userDetailsList.clear();
         userDetailsList.add("Email: " + inUserDetail.getEmail());
-        userDetailsList.add("PreferredLandmarkType: " + inUserDetail.getPreferredLandmarkType());
-        userDetailsList.add("FavouriteLandmark: " + inUserDetail.getFavouriteLandmark());
+
+        String s1 = inUserDetail.getPreferredLandmarkType();
+        String replaceString =s1.replace('_',' ');
+
+        replaceString = replaceString.substring(0,1).toUpperCase() + replaceString.substring(1).toLowerCase();
+
+        userDetailsList.add("Preferred landmark type: " + replaceString);
+        userDetailsList.add("Favourite place: " + inUserDetail.getFavouriteLandmark());
 
         if(inUserDetail.getIsMetric()){
             userDetailsList.add("Measurement system: Metric");
@@ -263,13 +304,35 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
         });
     }
 
+    private void changeUserFavPLace(String inToChange, Object inNewValue){
+        FirebaseDatabase.getInstance().getReference("users")
+                .child(UserDetail.currentUserId).child(inToChange)
+                .setValue(inNewValue).addOnCompleteListener(task -> {
+            pb_loadingProfile.hide();
+            if(task.isSuccessful()){
+                new SnackTwo().greenSnack(getActivity(), inToChange+" has been changed!");
+            }
+            else{
+                new SnackTwo().redSnack(getActivity(), "Something went wrong :-(!");
+            }
+        }).addOnFailureListener(e -> {
+            pb_loadingProfile.hide();
+            new SnackTwo().redSnack(getActivity(), e.getMessage());
+        });
+    }
+
     private void  placeTypeListDialog(){
         ListView placeTypeListView = new ListView(getContext());
 
         List<String> placeTypeData = new ArrayList<String>();
 
         for(int i = 0; i < Arrays.stream(PlaceType.values()).count(); i++){
-            placeTypeData.add(PlaceType.values()[i].toString());
+            String s1 = PlaceType.values()[i].toString();
+            String replaceString =s1.replace('_',' ');
+
+            replaceString = replaceString.substring(0,1).toUpperCase() + replaceString.substring(1).toLowerCase();
+
+            placeTypeData.add(replaceString);
         }
 
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, placeTypeData);
@@ -285,7 +348,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
         placeTypeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {//When user clicks on item
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                changeUserDetail("preferredLandmarkType", arrayAdapter.getItem(position));
+                changeUserDetail("preferredLandmarkType", PlaceType.values()[position].toString());
                 dialog.dismiss();
             }
         });

@@ -91,6 +91,7 @@ public class MyLandmarksFragment extends Fragment {
         getLandmark();
     }
 
+    //For now this gets information returned by google search
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

@@ -82,7 +82,7 @@
         android:layout_height="48dp"
         android:ems="10"
         android:hint="Preferred landmark type"
-        android:inputType="textPersonName"
+        android:inputType="text"
         app:layout_constraintStart_toStartOf="@+id/register_et_email"
         app:layout_constraintTop_toBottomOf="@+id/register_et_email" />
 
@@ -91,6 +91,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Register"
+        android:textColor="@color/black"
         android:textAppearance="@style/TextAppearance.AppCompat.Display3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

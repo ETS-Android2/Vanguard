@@ -88,7 +88,7 @@ import static android.app.Activity.RESULT_OK;
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     //Pallets
-    private FloatingActionButton fab_search, fab_direction, fab_nearby, fab_mapLayer, fab_share;
+    private FloatingActionButton fab_search, fab_direction, fab_nearby, fab_mapLayer;
     private AppBarLayout tb_toolbar;
     private TextView tv_time, tv_distance;
     private ImageView iv_stopNav;
@@ -138,7 +138,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
                 if (!isNavMode) {
                     fab_direction.setVisibility(View.INVISIBLE);
-                    fab_share.setVisibility(View.INVISIBLE);
 
                     if (tempMarker != null) {
                         tempMarker.remove();
@@ -158,9 +157,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(@NonNull @NotNull Marker marker) {
+                tempMarker = marker;
                 destinationLatLng = marker.getPosition();
                 fab_direction.setVisibility(View.VISIBLE);
-                fab_share.setVisibility(View.VISIBLE);
 
                 return false;
             }
@@ -275,10 +274,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
                     }
                 });
+        builder.setNeutralButton("Close", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+
+            }
+        });
+
         builder.setNegativeButton("Share", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
                 sharePlaceDetails(new CustomPlace().FormatPlaceDetails(details));
             }
         });
@@ -417,22 +423,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
         });
 
-        fab_share = view.findViewById(R.id.map_fab_share);
-        fab_share.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new SnackTwo().redSnack(getActivity(), "FAB not setup, method is here");
-                //todo: pass in the details of the clicked place here
-                //you can use try{} to prevent errors
-//                sharePlaceDetails();
-            }
-        });
-
         iv_stopNav = view.findViewById(R.id.maps_iv_stopNav);
         iv_stopNav.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mMapPolyline.remove();
+                if(mMapPolyline != null)
+                    mMapPolyline.remove();
+
                 enterNavigationMode(false);
             }
         });

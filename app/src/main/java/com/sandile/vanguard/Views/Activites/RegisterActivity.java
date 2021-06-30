@@ -1,6 +1,7 @@
 package com.sandile.vanguard.Views.Activites;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -9,8 +10,11 @@ import android.util.Log;
 import android.util.Pair;
 import android.util.Patterns;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Switch;
 
@@ -20,10 +24,17 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.maps.model.PlaceType;
 import com.sandile.vanguard.Phone.Keyboard;
 import com.sandile.vanguard.R;
 import com.sandile.vanguard.SnackTwo;
 import com.sandile.vanguard.UserDetail;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import io.opencensus.internal.StringUtils;
 
 public class RegisterActivity extends AppCompatActivity implements View.OnClickListener {
     private Button btn_register;
@@ -170,12 +181,55 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         et_password = findViewById(R.id.register_et_password);
         et_favouriteLandmark = findViewById(R.id.register_et_favouriteLandmark);
         et_preferredLandmarkType = findViewById(R.id.register_et_preferredLandmarkType);
+        et_preferredLandmarkType.setFocusable(false);
+        et_preferredLandmarkType.setCursorVisible(false);
+
+        et_preferredLandmarkType.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                placeTypeListDialog();
+            }
+        });
 
         pb_registering = findViewById(R.id.register_pb_registering);
         switch_measurementSystem = findViewById(R.id.register_switch_MeasurementSystem);
         switch_measurementSystem.setOnClickListener(this);
         btn_register = findViewById(R.id.register_btn_register);
         btn_register.setOnClickListener(this);
+    }
+
+    private void placeTypeListDialog(){
+        ListView placeTypeListView = new ListView(this);
+
+        List<String> placeTypeData = new ArrayList<String>();
+
+        for(int i = 0; i < Arrays.stream(PlaceType.values()).count(); i++){
+            String s1 = PlaceType.values()[i].toString();
+            String replaceString =s1.replace('_',' ');
+
+            replaceString = replaceString.substring(0,1).toUpperCase() + replaceString.substring(1).toLowerCase();
+
+            placeTypeData.add(replaceString);
+        }
+
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, placeTypeData);
+        placeTypeListView.setAdapter(arrayAdapter);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setCancelable(true);
+        builder.setView(placeTypeListView);
+        builder.create();
+        AlertDialog dialog =  builder.show();
+        dialog.show();
+
+        placeTypeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {//When user clicks on item
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                et_preferredLandmarkType.setText(PlaceType.values()[position].toString());
+                dialog.dismiss();
+            }
+        });
+
     }
 
 }
